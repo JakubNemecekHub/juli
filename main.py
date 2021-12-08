@@ -20,6 +20,7 @@ class MusicPlayer():
     def __init__(self, root):
         self.root = root    # The TkInter window object
         self.root.title("Juli Music Player")
+        self.root.iconphoto(False, tk.PhotoImage(file = "icon.png"))
         self.root.geometry("1000x200+100+100") # Height x Width + x + y positions
         pygame.init()
         self.track = tk.StringVar()
