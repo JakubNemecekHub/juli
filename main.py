@@ -15,17 +15,24 @@ class PlaybackStatus(enum.Enum):
     PAUSED = "Paused"
 
 
+class VolumeStatus(enum.Enum):
+    MUTE = 0
+    UNMUTE = 1
+
+
 class MusicPlayer():
 
     def __init__(self, root):
         self.root = root    # The TkInter window object
         self.root.title("Juli Music Player")
         self.root.iconphoto(False, tk.PhotoImage(file = "icon.png"))
-        self.root.geometry("1000x200+100+100") # Height x Width + x + y positions
+        self.root.geometry("1000x275+100+100") # Height x Width + x + y positions
         pygame.init()
         self.track = tk.StringVar()
         self.playback_status = PlaybackStatus.STOPPED
         self.status = tk.StringVar()
+        self.volume = pygame.mixer.music.get_volume()
+        self.mute = VolumeStatus.UNMUTE
 
         # Track Frame for song label and status
         frame_track = tk.LabelFrame(root, text="Song", relief=tk.FLAT)
@@ -41,12 +48,20 @@ class MusicPlayer():
         btn_stop = tk.Button(frame_button, text="Stop", command=self.song_stop, width=10, height=1).grid(row=0, column=3, padx=10, pady=5)
         btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=0, padx=10, pady=5)
         btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
-
+        
+        # Volume Frame
+        frame_volume = tk.LabelFrame(self.root, text="Volume Controls", relief=tk.FLAT)
+        frame_volume.place(x=0, y=200, width=600, height=75)
+        scl_volume = tk.Scale(frame_volume, showvalue=0, command=self.set_volume, orient=tk.HORIZONTAL, width=10)
+        scl_volume.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
+        scl_volume.set(self.volume * 100)
+        btn_mute = tk.Button(frame_volume, text="Mute", command=self.song_mute, width=10, height=1).grid(row=0, column=2, padx=10, pady=5)
+        
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.root, text="Playlist", relief=tk.FLAT)
-        frame_playlist.place(x=600, y=0, width=400, height=200)
+        frame_playlist.place(x=600, y=0, width=400, height=275)
         scroll_y_playlist = tk.Scrollbar(frame_playlist, orient=tk.VERTICAL)
-        self.playlist = tk.Listbox(frame_playlist, yscrollcommand=scroll_y_playlist.set, selectmode=tk.SINGLE)
+        self.playlist = tk.Listbox(frame_playlist, yscrollcommand=scroll_y_playlist.set, selectmode=tk.SINGLE, height=14)
         scroll_y_playlist.pack(side=tk.RIGHT, fill=tk.Y)
         scroll_y_playlist.config(command=self.playlist.yview)
         self.playlist.pack(fill=tk.BOTH)
@@ -122,7 +137,19 @@ class MusicPlayer():
             self.playlist.selection_set(next_index)
             self.playlist.see(next_index)
 
-            self.song_play()        
+            self.song_play()
+
+    def set_volume(self, volume):
+        pygame.mixer.music.set_volume(int(volume) / 100)
+
+    def song_mute(self):
+        if self.mute == VolumeStatus.UNMUTE:
+            self.mute = VolumeStatus.MUTE
+            self.volume = pygame.mixer.music.get_volume()
+            pygame.mixer.music.set_volume(0.0)
+        elif self.mute == VolumeStatus.MUTE:
+            self.mute = VolumeStatus.UNMUTE
+            pygame.mixer.music.set_volume(self.volume)
 
 
 if __name__ == "__main__":
