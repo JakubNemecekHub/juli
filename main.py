@@ -35,9 +35,11 @@ class MusicPlayer():
         # Button Frame
         frame_button = tk.LabelFrame(self.root, text="Controls", relief=tk.FLAT)
         frame_button.place(x=0, y=100, width=600, height=100)
-        btn_play = tk.Button(frame_button, text="Play", command=self.playsong, width=10, height=1).grid(row=0, column=0, padx=10, pady=5)
-        btn_pause = tk.Button(frame_button, text="Pause", command=self.pausesong, width=10, height=1).grid(row=0, column=1, padx=10, pady=5)
-        btn_stop = tk.Button(frame_button, text="Stop", command=self.stopsong, width=10, height=1).grid(row=0, column=3, padx=10, pady=5)
+        btn_play = tk.Button(frame_button, text="Play", command=self.song_play, width=10, height=1).grid(row=0, column=0, padx=10, pady=5)
+        btn_pause = tk.Button(frame_button, text="Pause", command=self.song_pause, width=10, height=1).grid(row=0, column=1, padx=10, pady=5)
+        btn_stop = tk.Button(frame_button, text="Stop", command=self.song_stop, width=10, height=1).grid(row=0, column=3, padx=10, pady=5)
+        btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=0, padx=10, pady=5)
+        btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
 
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.root, text="Playlist", relief=tk.FLAT)
@@ -60,13 +62,19 @@ class MusicPlayer():
         self.status.set(status.value)
         self.playback_status = status
 
-    def playsong(self):
-        self.track.set(self.playlist.get(tk.ACTIVE))    # Display selected song
-        self._set_status(PlaybackStatus.PLAYING)
-        pygame.mixer.music.load(self.playlist.get(tk.ACTIVE))  # Load selected song
-        pygame.mixer.music.play()                              # Play the song
+    def song_play(self):
+        if not self.playlist.curselection():
+            # Nothing is selected -> select first song
+            self.playlist.activate(0)
+            self.playlist.selection_set(0)
+            self.playlist.see(0)
 
-    def pausesong(self):
+        self.track.set(self.playlist.get(tk.ACTIVE))            # Display selected song
+        self._set_status(PlaybackStatus.PLAYING)
+        pygame.mixer.music.load(self.playlist.get(tk.ACTIVE))   # Load selected song
+        pygame.mixer.music.play()                               # Play the song
+
+    def song_pause(self):
         if self.playback_status == PlaybackStatus.PLAYING:
             pygame.mixer.music.pause()
             self._set_status(PlaybackStatus.PAUSED)
@@ -74,9 +82,46 @@ class MusicPlayer():
             pygame.mixer.music.unpause()
             self._set_status(PlaybackStatus.PLAYING)
 
-    def stopsong(self):
+    def song_stop(self):
         pygame.mixer.music.stop()
         self._set_status(PlaybackStatus.STOPPED)
+        self.track.set("")                          # Clear song_track label
+        self.playlist.selection_clear(0, tk.END)    # Clear playlist selection
+        self.playlist.see(0)
+
+    def song_next(self):
+        try:
+            current_index = self.playlist.curselection()[0]
+        except IndexError:
+            # No Selection -> start from beginning
+            current_index = -1
+
+        if current_index < self.playlist.size() - 1:
+            # Last item not selected
+            next_index = current_index + 1
+            self.playlist.selection_clear(current_index)
+            self.playlist.activate(next_index)
+            self.playlist.selection_set(next_index)
+            self.playlist.see(next_index)
+
+            self.song_play()
+
+    def song_previous(self):
+        try:
+            current_index = self.playlist.curselection()[0]
+        except IndexError:
+            # No Selection -> do nothing
+            return
+
+        if current_index > 0:
+            # First item not selected
+            next_index = current_index - 1
+            self.playlist.selection_clear(current_index)
+            self.playlist.activate(next_index)
+            self.playlist.selection_set(next_index)
+            self.playlist.see(next_index)
+
+            self.song_play()        
 
 
 if __name__ == "__main__":
