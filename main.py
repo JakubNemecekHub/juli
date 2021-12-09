@@ -51,7 +51,7 @@ class MusicPlayer():
         btn_stop = tk.Button(frame_button, text="Stop", command=self.song_stop, width=10, height=1).grid(row=0, column=3, padx=10, pady=5)
         btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=0, padx=10, pady=5)
         btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
-        
+
         # Volume Frame
         frame_volume = tk.LabelFrame(self.root, text="Volume Controls", relief=tk.FLAT)
         frame_volume.place(x=0, y=200, width=600, height=75)
@@ -59,7 +59,7 @@ class MusicPlayer():
         scl_volume.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
         scl_volume.set(self.volume * 100)
         btn_mute = tk.Button(frame_volume, text="Mute", command=self.song_mute, width=10, height=1).grid(row=0, column=2, padx=10, pady=5)
-        
+
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.root, text="Playlist", relief=tk.FLAT)
         frame_playlist.place(x=600, y=0, width=400, height=275)
@@ -71,8 +71,8 @@ class MusicPlayer():
 
         # Song Directory
         # os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
-        os.chdir("/home/jakub/Music/Violet Sedan Chair")
-        
+        # os.chdir("/home/jakub/Music/Violet Sedan Chair")
+        os.chdir("/home/jakub/Music/Music")
         # Fetch Songs
         song_tracks = os.listdir()
         # Populate Playlist
@@ -156,15 +156,31 @@ class MusicPlayer():
             self.mute = VolumeStatus.UNMUTE
             mixer.music.set_volume(self.volume)
 
-    def my_loop(self):
+    def loop_runtime(self):
         if self.playback_status == PlaybackStatus.PLAYING:
             self.run_time.set(run_time_str(mixer.music.get_pos()))
         elif self.playback_status == PlaybackStatus.STOPPED:
             self.run_time.set("")
-        root.after(1000, self.my_loop) # Delay measured in milliseconds
 
+        root.after(100, self.loop_runtime)
+
+    def loop_continuity(self):
+        if self.playback_status == PlaybackStatus.PLAYING and not mixer.music.get_busy():
+            # If at the last song of the playlist -> STOPPED
+            current_index = self.playlist.curselection()[0]
+            if current_index == self.playlist.size() - 1:
+                self.playback_status = PlaybackStatus.STOPPED
+            else:
+                # Player is playing but the mixer is not busy
+                # Not at the last song in playlist
+                # -> play next song
+                self.song_next()
+
+        root.after(100, self.loop_continuity)
 
 if __name__ == "__main__":
     player = MusicPlayer(root)
-    player.my_loop()
+    player.loop_runtime()
+    player.loop_continuity()
     player.root.mainloop()
+    
