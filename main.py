@@ -3,7 +3,7 @@ import enum
 import tkinter as tk
 from tkinter.constants import SINGLE, VERTICAL
 
-import pygame
+from pygame import mixer
 
 from runtime import run_time_str
 
@@ -28,12 +28,12 @@ class MusicPlayer():
         self.root.title("Juli Music Player")
         self.root.iconphoto(False, tk.PhotoImage(file = "icon.png"))
         self.root.geometry("1000x275+100+100") # Height x Width + x + y positions
-        pygame.init()
+        mixer.init()
         self.track = tk.StringVar()
         self.playback_status = PlaybackStatus.STOPPED
         self.status = tk.StringVar()
         self.run_time = tk.StringVar()
-        self.volume = pygame.mixer.music.get_volume()
+        self.volume = mixer.music.get_volume()
         self.mute = VolumeStatus.UNMUTE
 
         # Track Frame for song label and status
@@ -92,19 +92,19 @@ class MusicPlayer():
 
         self.track.set(self.playlist.get(tk.ACTIVE))            # Display selected song
         self._set_status(PlaybackStatus.PLAYING)
-        pygame.mixer.music.load(self.playlist.get(tk.ACTIVE))   # Load selected song
-        pygame.mixer.music.play()                               # Play the song
+        mixer.music.load(self.playlist.get(tk.ACTIVE))   # Load selected song
+        mixer.music.play()                               # Play the song
 
     def song_pause(self):
         if self.playback_status == PlaybackStatus.PLAYING:
-            pygame.mixer.music.pause()
+            mixer.music.pause()
             self._set_status(PlaybackStatus.PAUSED)
         elif self.playback_status == PlaybackStatus.PAUSED:
-            pygame.mixer.music.unpause()
+            mixer.music.unpause()
             self._set_status(PlaybackStatus.PLAYING)
 
     def song_stop(self):
-        pygame.mixer.music.stop()
+        mixer.music.stop()
         self._set_status(PlaybackStatus.STOPPED)
         self.track.set("")                          # Clear song_track label
         self.playlist.selection_clear(0, tk.END)    # Clear playlist selection
@@ -145,21 +145,21 @@ class MusicPlayer():
             self.song_play()
 
     def set_volume(self, volume):
-        pygame.mixer.music.set_volume(int(volume) / 100)
+        mixer.music.set_volume(int(volume) / 100)
 
     def song_mute(self):
         if self.mute == VolumeStatus.UNMUTE:
             self.mute = VolumeStatus.MUTE
-            self.volume = pygame.mixer.music.get_volume()
-            pygame.mixer.music.set_volume(0.0)
+            self.volume = mixer.music.get_volume()
+            mixer.music.set_volume(0.0)
         elif self.mute == VolumeStatus.MUTE:
             self.mute = VolumeStatus.UNMUTE
-            pygame.mixer.music.set_volume(self.volume)
+            mixer.music.set_volume(self.volume)
 
     def my_loop(self):
-        print(pygame.mixer.music.get_busy(), pygame.mixer.music.get_pos())
+        print(mixer.music.get_busy(), mixer.music.get_pos())
         if self.playback_status == PlaybackStatus.PLAYING:
-            self.run_time.set(run_time_str(pygame.mixer.music.get_pos()))
+            self.run_time.set(run_time_str(mixer.music.get_pos()))
         elif self.playback_status == PlaybackStatus.STOPPED:
             self.run_time.set("")
         root.after(1000, self.my_loop) # Delay measured in milliseconds
