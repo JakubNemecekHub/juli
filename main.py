@@ -1,6 +1,7 @@
 import os
 import enum
 import tkinter as tk
+from tkinter import Toplevel, filedialog
 from tkinter.constants import SINGLE, VERTICAL
 
 from pygame import mixer
@@ -9,6 +10,8 @@ from runtime import run_time_str
 
 root = tk.Tk()
 
+INITIAL_DIR = r"/home/jakub/Music"
+FORMATS = [".mp3", ".vaw", ".ogg"]
 
 class PlaybackStatus(enum.Enum):
     STOPPED = "Stopped"
@@ -35,6 +38,17 @@ class MusicPlayer():
         self.run_time = tk.StringVar()
         self.volume = mixer.music.get_volume()
         self.mute = VolumeStatus.UNMUTE
+
+        # Menu
+        menu_bar = tk.Menu(root)
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Open Folder", command=self.menu_open_folder)
+        file_menu.add_command(label="Add Folder", command=self.menu_add_folder)
+        file_menu.add_command(label="Add Songs", command=self.menu_add_songs)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.menu_exit)
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        root.config(menu=menu_bar)
 
         # Track Frame for song label and status
         frame_track = tk.LabelFrame(root, text="Song", relief=tk.FLAT)
@@ -70,14 +84,57 @@ class MusicPlayer():
         self.playlist.pack(fill=tk.BOTH)
 
         # Song Directory
-        # os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
+        os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
         # os.chdir("/home/jakub/Music/Violet Sedan Chair")
-        os.chdir("/home/jakub/Music/Music")
+        # os.chdir("/home/jakub/Music/Music")
         # Fetch Songs
         song_tracks = os.listdir()
         # Populate Playlist
         for track in song_tracks:
             self.playlist.insert(tk.END, track)
+
+    def menu_exit(self):
+        self.root.destroy()
+
+    def menu_open_folder(self):
+        dir = filedialog.askdirectory(initialdir=INITIAL_DIR, title="Select a folder")
+        if dir:
+            # Directory selected
+            self.song_stop()    # Stop playing
+            
+            # Populate new playlist
+            songs = []
+            for root_dir, dirs, files in os.walk(dir):
+                # Slect only supported formats
+                songs = [os.path.join(root_dir, file) for file in files if os.path.splitext(file)[1] in FORMATS]
+                        
+            if songs:                           # Some songs are in the folder
+                self.playlist.delete(0, tk.END) # Delete old playlist
+                for song in songs:              # Populate playlist with new songs
+                    self.playlist.insert(tk.END, song)
+            else:                               # No songs in the folder
+                # Show pop up
+                msg = tk.Toplevel(self.root)
+                msg.geometry("200x50")
+                msg.title("Message")
+                tk.Label(msg, text="No songs found").pack()
+
+    def menu_add_folder(self):
+        dir = filedialog.askdirectory(initialdir=INITIAL_DIR, title="Select a folder")
+        if dir:
+            # Directory selected
+            # Populate new playlist
+            for root_dir, dirs, files in os.walk(dir):
+                for file in files:
+                    # TO DO: Show message if no supported files found
+                    if os.path.splitext(file)[1] in FORMATS:
+                        self.playlist.insert(tk.END, os.path.join(root_dir, file)) 
+
+    def menu_add_songs(self):
+        FILE_TYPES = [("Music format", ".mp3")]
+        selection = filedialog.askopenfilenames(initialdir=INITIAL_DIR, title="Select a song", filetypes=FILE_TYPES)
+        for song in selection:
+            self.playlist.insert(tk.END, song)
 
     def _set_status(self, status: enum.Enum):
         self.status.set(status.value)
@@ -90,7 +147,7 @@ class MusicPlayer():
             self.playlist.selection_set(0)
             self.playlist.see(0)
 
-        self.track.set(self.playlist.get(tk.ACTIVE))            # Display selected song
+        self.track.set(self.playlist.get(tk.ACTIVE))    # Display selected song
         self._set_status(PlaybackStatus.PLAYING)
         mixer.music.load(self.playlist.get(tk.ACTIVE))   # Load selected song
         mixer.music.play()                               # Play the song
