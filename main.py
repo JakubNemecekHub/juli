@@ -5,6 +5,7 @@ from tkinter.constants import SINGLE, VERTICAL
 
 import pygame
 
+from runtime import run_time_str
 
 root = tk.Tk()
 
@@ -31,6 +32,7 @@ class MusicPlayer():
         self.track = tk.StringVar()
         self.playback_status = PlaybackStatus.STOPPED
         self.status = tk.StringVar()
+        self.run_time = tk.StringVar()
         self.volume = pygame.mixer.music.get_volume()
         self.mute = VolumeStatus.UNMUTE
 
@@ -39,6 +41,7 @@ class MusicPlayer():
         frame_track.place(x=0, y=0, width=600, height=100)
         song_track = tk.Label(frame_track, textvariable=self.track, width=20).grid(row=0, column=0, padx=10, pady=5)
         track_status = tk.Label(frame_track, textvariable=self.status, width=20).grid(row=0, column=1, padx=10, pady=5)
+        track_time = tk.Label(frame_track, textvariable=self.run_time, width=20).grid(row=0, column=2, padx=10, pady=5)
 
         # Button Frame
         frame_button = tk.LabelFrame(self.root, text="Controls", relief=tk.FLAT)
@@ -67,7 +70,9 @@ class MusicPlayer():
         self.playlist.pack(fill=tk.BOTH)
 
         # Song Directory
-        os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
+        # os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
+        os.chdir("/home/jakub/Music/Violet Sedan Chair")
+        
         # Fetch Songs
         song_tracks = os.listdir()
         # Populate Playlist
@@ -151,7 +156,16 @@ class MusicPlayer():
             self.mute = VolumeStatus.UNMUTE
             pygame.mixer.music.set_volume(self.volume)
 
+    def my_loop(self):
+        print(pygame.mixer.music.get_busy(), pygame.mixer.music.get_pos())
+        if self.playback_status == PlaybackStatus.PLAYING:
+            self.run_time.set(run_time_str(pygame.mixer.music.get_pos()))
+        elif self.playback_status == PlaybackStatus.STOPPED:
+            self.run_time.set("")
+        root.after(1000, self.my_loop) # Delay measured in milliseconds
+
 
 if __name__ == "__main__":
     player = MusicPlayer(root)
+    player.my_loop()
     player.root.mainloop()
