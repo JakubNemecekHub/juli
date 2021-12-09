@@ -157,7 +157,6 @@ class MusicPlayer():
             mixer.music.set_volume(self.volume)
 
     def my_loop(self):
-        print(mixer.music.get_busy(), mixer.music.get_pos())
         if self.playback_status == PlaybackStatus.PLAYING:
             self.run_time.set(run_time_str(mixer.music.get_pos()))
         elif self.playback_status == PlaybackStatus.STOPPED:
