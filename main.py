@@ -5,6 +5,7 @@ from tkinter import Toplevel, filedialog
 from tkinter.constants import SINGLE, VERTICAL
 
 from pygame import mixer
+import music_tag
 
 from runtime import run_time_str
 
@@ -12,16 +13,12 @@ root = tk.Tk()
 
 INITIAL_DIR = r"/home/jakub/Music"
 FORMATS = [".mp3", ".vaw", ".ogg"]
+TAG_NAMES = ["tracktitle", "artist", "album", "tracknumber"]
 
 class PlaybackStatus(enum.Enum):
     STOPPED = "Stopped"
     PLAYING = "Playing"
     PAUSED = "Paused"
-
-
-class VolumeStatus(enum.Enum):
-    MUTE = 0
-    UNMUTE = 1
 
 
 class MusicPlayer():
@@ -30,14 +27,17 @@ class MusicPlayer():
         self.root = root    # The TkInter window object
         self.root.title("Juli Music Player")
         self.root.iconphoto(False, tk.PhotoImage(file = "icon.png"))
-        self.root.geometry("1000x275+100+100") # Height x Width + x + y positions
+        self.root.geometry("1000x300+100+100") # Height x Width + x + y positions
         mixer.init()
-        self.track = tk.StringVar()
+        # Flags
         self.playback_status = PlaybackStatus.STOPPED
-        self.status = tk.StringVar()
+        self.mute = tk.BooleanVar()
+        # Label variables
+        self.track = tk.StringVar()
         self.run_time = tk.StringVar()
+
+        # Get default volume
         self.volume = mixer.music.get_volume()
-        self.mute = VolumeStatus.UNMUTE
 
         # Menu
         menu_bar = tk.Menu(root)
@@ -50,12 +50,11 @@ class MusicPlayer():
         menu_bar.add_cascade(label="File", menu=file_menu)
         root.config(menu=menu_bar)
 
-        # Track Frame for song label and status
+        # Track Frame (for song label and time)
         frame_track = tk.LabelFrame(root, text="Song", relief=tk.FLAT)
         frame_track.place(x=0, y=0, width=600, height=100)
-        song_track = tk.Label(frame_track, textvariable=self.track, width=20).grid(row=0, column=0, padx=10, pady=5)
-        track_status = tk.Label(frame_track, textvariable=self.status, width=20).grid(row=0, column=1, padx=10, pady=5)
-        track_time = tk.Label(frame_track, textvariable=self.run_time, width=20).grid(row=0, column=2, padx=10, pady=5)
+        song_track = tk.Label(frame_track, textvariable=self.track).grid(row=0, column=0, padx=10, pady=5)
+        track_time = tk.Label(frame_track, textvariable=self.run_time, width=20).grid(row=1, column=0, padx=10, pady=5)
 
         # Button Frame
         frame_button = tk.LabelFrame(self.root, text="Controls", relief=tk.FLAT)
@@ -63,8 +62,8 @@ class MusicPlayer():
         btn_play = tk.Button(frame_button, text="Play", command=self.song_play, width=10, height=1).grid(row=0, column=0, padx=10, pady=5)
         btn_pause = tk.Button(frame_button, text="Pause", command=self.song_pause, width=10, height=1).grid(row=0, column=1, padx=10, pady=5)
         btn_stop = tk.Button(frame_button, text="Stop", command=self.song_stop, width=10, height=1).grid(row=0, column=3, padx=10, pady=5)
-        btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=0, padx=10, pady=5)
-        btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
+        btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous, width=10, height=1).grid(row=1, column=0, padx=10, pady=5)
+        btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
 
         # Volume Frame
         frame_volume = tk.LabelFrame(self.root, text="Volume Controls", relief=tk.FLAT)
@@ -72,26 +71,61 @@ class MusicPlayer():
         scl_volume = tk.Scale(frame_volume, showvalue=0, command=self.set_volume, orient=tk.HORIZONTAL, width=10)
         scl_volume.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
         scl_volume.set(self.volume * 100)
-        btn_mute = tk.Button(frame_volume, text="Mute", command=self.song_mute, width=10, height=1).grid(row=0, column=2, padx=10, pady=5)
+        chk_mute = tk.Checkbutton(frame_volume, text="Mute", variable=self.mute, command=self.song_mute).grid(row=0, column=3, padx=10, pady=5)
 
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.root, text="Playlist", relief=tk.FLAT)
-        frame_playlist.place(x=600, y=0, width=400, height=275)
+        frame_playlist.place(x=600, y=0, width=400, height=300)
         scroll_y_playlist = tk.Scrollbar(frame_playlist, orient=tk.VERTICAL)
-        self.playlist = tk.Listbox(frame_playlist, yscrollcommand=scroll_y_playlist.set, selectmode=tk.SINGLE, height=14)
+        self.playlistbox = tk.Listbox(frame_playlist, yscrollcommand=scroll_y_playlist.set, selectmode=tk.SINGLE, height=16)
         scroll_y_playlist.pack(side=tk.RIGHT, fill=tk.Y)
-        scroll_y_playlist.config(command=self.playlist.yview)
-        self.playlist.pack(fill=tk.BOTH)
+        scroll_y_playlist.config(command=self.playlistbox.yview)
+        self.playlistbox.pack(fill=tk.BOTH)
+
+        # Status Frame
+        self.status_playback = tk.StringVar()
+        self.status_files = tk.StringVar()
+        frame_status = tk.LabelFrame(self.root, relief=tk.FLAT)
+        frame_status.place(x=0, y=275, width=600, height=25)
+        tk.Label(frame_status, textvariable=self.status_playback).grid(row=0, column=0, padx=0, pady=0) # track_status
+        tk.Label(frame_status, textvariable=self.status_files).grid(row=0, column=1, padx=0, pady=0)    # files_status
 
         # Song Directory
-        os.chdir("/home/jakub/Music/Blackmores Night/Natures Light (2001)")
-        # os.chdir("/home/jakub/Music/Violet Sedan Chair")
-        # os.chdir("/home/jakub/Music/Music")
-        # Fetch Songs
-        song_tracks = os.listdir()
-        # Populate Playlist
-        for track in song_tracks:
-            self.playlist.insert(tk.END, track)
+        # STARTING_DIR = r"Blackmores Night/Natures Light (2001)"
+        # STARTING_DIR = r"Violet Sedan Chair"
+        STARTING_DIR = r"Mike Oldfield/Light And Shade"
+        self.playlist = {}
+        self.populate_playlist(os.path.join(INITIAL_DIR, STARTING_DIR))
+
+    def populate_playlist(self, folder: str, append = False):
+        # Load files
+        loaded_files = {}
+        for root_dir, dirs, files in os.walk(folder):
+            for file in files:
+                # Skip non-supported formats
+                if os.path.splitext(file)[1] not in FORMATS:
+                    continue
+                path = os.path.join(root_dir, file)
+                # Load and process tags -> this can be its own function
+                tags = music_tag.load_file(path)
+                song = {key: tags[key].value for key in TAG_NAMES} # What if song doesn't have tags?
+                song_id = f"{song['artist']} - {song['album']} - {song['tracknumber']} - {song['tracktitle']}"
+                song["path"] = path
+                loaded_files[song_id] = song
+        # Check if any songs loaded
+        if not loaded_files:
+            # No supported songs founds
+            self.status_files.set("No files found")
+            root.after(3000, lambda : self.status_files.set(""))
+            return
+        # Delete present songs if not append
+        if not append:
+            self.playlist.clear()               # playlist
+            self.playlistbox.delete(0, tk.END)  # playlistbox
+        # Populate playlistbox
+        self.playlist = loaded_files.copy()
+        for song_id in self.playlist.keys():
+            self.playlistbox.insert(tk.END, song_id)
 
     def menu_exit(self):
         self.root.destroy()
@@ -101,56 +135,36 @@ class MusicPlayer():
         if dir:
             # Directory selected
             self.song_stop()    # Stop playing
-            
-            # Populate new playlist
-            songs = []
-            for root_dir, dirs, files in os.walk(dir):
-                # Slect only supported formats
-                songs = [os.path.join(root_dir, file) for file in files if os.path.splitext(file)[1] in FORMATS]
-                        
-            if songs:                           # Some songs are in the folder
-                self.playlist.delete(0, tk.END) # Delete old playlist
-                for song in songs:              # Populate playlist with new songs
-                    self.playlist.insert(tk.END, song)
-            else:                               # No songs in the folder
-                # Show pop up
-                msg = tk.Toplevel(self.root)
-                msg.geometry("200x50")
-                msg.title("Message")
-                tk.Label(msg, text="No songs found").pack()
+            self.populate_playlist(dir)
 
     def menu_add_folder(self):
         dir = filedialog.askdirectory(initialdir=INITIAL_DIR, title="Select a folder")
         if dir:
             # Directory selected
-            # Populate new playlist
-            for root_dir, dirs, files in os.walk(dir):
-                for file in files:
-                    # TO DO: Show message if no supported files found
-                    if os.path.splitext(file)[1] in FORMATS:
-                        self.playlist.insert(tk.END, os.path.join(root_dir, file)) 
+            self.populate_playlist(dir, append=True)
 
     def menu_add_songs(self):
-        FILE_TYPES = [("Music format", ".mp3")]
+        FILE_TYPES = [("Music format", ".mp3"), ("Music format", ".vaw"), ("Music format", ".ogg")]
         selection = filedialog.askopenfilenames(initialdir=INITIAL_DIR, title="Select a song", filetypes=FILE_TYPES)
         for song in selection:
-            self.playlist.insert(tk.END, song)
+            self.playlistbox.insert(tk.END, song)
 
     def _set_status(self, status: enum.Enum):
-        self.status.set(status.value)
+        self.status_playback.set(status.value)
         self.playback_status = status
 
     def song_play(self):
-        if not self.playlist.curselection():
+        if not self.playlistbox.curselection():
             # Nothing is selected -> select first song
-            self.playlist.activate(0)
-            self.playlist.selection_set(0)
-            self.playlist.see(0)
+            self.playlistbox.activate(0)
+            self.playlistbox.selection_set(0)
+            self.playlistbox.see(0)
 
-        self.track.set(self.playlist.get(tk.ACTIVE))    # Display selected song
+        active_song = self.playlistbox.get(tk.ACTIVE)
+        self.track.set(active_song)                             # Display selected song
         self._set_status(PlaybackStatus.PLAYING)
-        mixer.music.load(self.playlist.get(tk.ACTIVE))   # Load selected song
-        mixer.music.play()                               # Play the song
+        mixer.music.load(self.playlist[active_song]["path"])    # Load selected song
+        mixer.music.play()                                      # Play the song
 
     def song_pause(self):
         if self.playback_status == PlaybackStatus.PLAYING:
@@ -164,29 +178,29 @@ class MusicPlayer():
         mixer.music.stop()
         self._set_status(PlaybackStatus.STOPPED)
         self.track.set("")                          # Clear song_track label
-        self.playlist.selection_clear(0, tk.END)    # Clear playlist selection
-        self.playlist.see(0)
+        self.playlistbox.selection_clear(0, tk.END) # Clear playlist selection
+        self.playlistbox.see(0)
 
     def song_next(self):
         try:
-            current_index = self.playlist.curselection()[0]
+            current_index = self.playlistbox.curselection()[0]
         except IndexError:
             # No Selection -> start from beginning
             current_index = -1
 
-        if current_index < self.playlist.size() - 1:
+        if current_index < self.playlistbox.size() - 1:
             # Last item not selected
             next_index = current_index + 1
-            self.playlist.selection_clear(current_index)
-            self.playlist.activate(next_index)
-            self.playlist.selection_set(next_index)
-            self.playlist.see(next_index)
+            self.playlistbox.selection_clear(current_index)
+            self.playlistbox.activate(next_index)
+            self.playlistbox.selection_set(next_index)
+            self.playlistbox.see(next_index)
 
             self.song_play()
 
     def song_previous(self):
         try:
-            current_index = self.playlist.curselection()[0]
+            current_index = self.playlistbox.curselection()[0]
         except IndexError:
             # No Selection -> do nothing
             return
@@ -194,23 +208,23 @@ class MusicPlayer():
         if current_index > 0:
             # First item not selected
             next_index = current_index - 1
-            self.playlist.selection_clear(current_index)
-            self.playlist.activate(next_index)
-            self.playlist.selection_set(next_index)
-            self.playlist.see(next_index)
+            self.playlistbox.selection_clear(current_index)
+            self.playlistbox.activate(next_index)
+            self.playlistbox.selection_set(next_index)
+            self.playlistbox.see(next_index)
 
             self.song_play()
 
     def set_volume(self, volume):
         mixer.music.set_volume(int(volume) / 100)
+        if self.mute.get():
+            self.mute.set(False)
 
     def song_mute(self):
-        if self.mute == VolumeStatus.UNMUTE:
-            self.mute = VolumeStatus.MUTE
+        if self.mute.get():                             # Activate mute
             self.volume = mixer.music.get_volume()
             mixer.music.set_volume(0.0)
-        elif self.mute == VolumeStatus.MUTE:
-            self.mute = VolumeStatus.UNMUTE
+        else:                                           # Deactivate mute
             mixer.music.set_volume(self.volume)
 
     def loop_runtime(self):
@@ -224,8 +238,8 @@ class MusicPlayer():
     def loop_continuity(self):
         if self.playback_status == PlaybackStatus.PLAYING and not mixer.music.get_busy():
             # If at the last song of the playlist -> STOPPED
-            current_index = self.playlist.curselection()[0]
-            if current_index == self.playlist.size() - 1:
+            current_index = self.playlistbox.curselection()[0]
+            if current_index == self.playlistbox.size() - 1:
                 self.playback_status = PlaybackStatus.STOPPED
             else:
                 # Player is playing but the mixer is not busy
@@ -240,4 +254,3 @@ if __name__ == "__main__":
     player.loop_runtime()
     player.loop_continuity()
     player.root.mainloop()
-    
