@@ -4,10 +4,10 @@ import tkinter as tk
 from tkinter import Toplevel, filedialog
 from tkinter.constants import SINGLE, VERTICAL
 
-from pygame import mixer
 import music_tag
 
 from runtime import run_time_str
+from components.volume import Mixer, FrameVolume
 
 root = tk.Tk()
 
@@ -28,16 +28,15 @@ class MusicPlayer():
         self.root.title("Juli Music Player")
         self.root.iconphoto(False, tk.PhotoImage(file = "icon.png"))
         self.root.geometry("1000x300+100+100") # Height x Width + x + y positions
-        mixer.init()
+        self.mixer = Mixer()
         # Flags
         self.playback_status = PlaybackStatus.STOPPED
-        self.mute = tk.BooleanVar()
         # Label variables
         self.track = tk.StringVar()
         self.run_time = tk.StringVar()
 
         # Get default volume
-        self.volume = mixer.music.get_volume()
+        self.volume = self.mixer.get_volume()
 
         # Menu
         menu_bar = tk.Menu(root)
@@ -66,12 +65,7 @@ class MusicPlayer():
         btn_next = tk.Button(frame_button, text="Next", command=self.song_next, width=10, height=1).grid(row=1, column=1, padx=10, pady=5)
 
         # Volume Frame
-        frame_volume = tk.LabelFrame(self.root, text="Volume Controls", relief=tk.FLAT)
-        frame_volume.place(x=0, y=200, width=600, height=75)
-        scl_volume = tk.Scale(frame_volume, showvalue=0, command=self.set_volume, orient=tk.HORIZONTAL, width=10)
-        scl_volume.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-        scl_volume.set(self.volume * 100)
-        chk_mute = tk.Checkbutton(frame_volume, text="Mute", variable=self.mute, command=self.song_mute).grid(row=0, column=3, padx=10, pady=5)
+        self.frame_volume = FrameVolume(self)
 
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.root, text="Playlist", relief=tk.FLAT)
@@ -163,19 +157,19 @@ class MusicPlayer():
         active_song = self.playlistbox.get(tk.ACTIVE)
         self.track.set(active_song)                             # Display selected song
         self._set_status(PlaybackStatus.PLAYING)
-        mixer.music.load(self.playlist[active_song]["path"])    # Load selected song
-        mixer.music.play()                                      # Play the song
+        self.mixer.load(self.playlist[active_song]["path"])    # Load selected song
+        self.mixer.play()                                      # Play the song
 
     def song_pause(self):
         if self.playback_status == PlaybackStatus.PLAYING:
-            mixer.music.pause()
+            self.mixer.pause()
             self._set_status(PlaybackStatus.PAUSED)
         elif self.playback_status == PlaybackStatus.PAUSED:
-            mixer.music.unpause()
+            self.mixer.unpause()
             self._set_status(PlaybackStatus.PLAYING)
 
     def song_stop(self):
-        mixer.music.stop()
+        self.mixer.stop()
         self._set_status(PlaybackStatus.STOPPED)
         self.track.set("")                          # Clear song_track label
         self.playlistbox.selection_clear(0, tk.END) # Clear playlist selection
@@ -215,28 +209,16 @@ class MusicPlayer():
 
             self.song_play()
 
-    def set_volume(self, volume):
-        mixer.music.set_volume(int(volume) / 100)
-        if self.mute.get():
-            self.mute.set(False)
-
-    def song_mute(self):
-        if self.mute.get():                             # Activate mute
-            self.volume = mixer.music.get_volume()
-            mixer.music.set_volume(0.0)
-        else:                                           # Deactivate mute
-            mixer.music.set_volume(self.volume)
-
     def loop_runtime(self):
         if self.playback_status == PlaybackStatus.PLAYING:
-            self.run_time.set(run_time_str(mixer.music.get_pos()))
+            self.run_time.set(run_time_str(self.mixer.get_pos()))
         elif self.playback_status == PlaybackStatus.STOPPED:
             self.run_time.set("")
 
         root.after(100, self.loop_runtime)
 
     def loop_continuity(self):
-        if self.playback_status == PlaybackStatus.PLAYING and not mixer.music.get_busy():
+        if self.playback_status == PlaybackStatus.PLAYING and not self.mixer.get_busy():
             # If at the last song of the playlist -> STOPPED
             current_index = self.playlistbox.curselection()[0]
             if current_index == self.playlistbox.size() - 1:
