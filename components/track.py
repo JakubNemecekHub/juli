@@ -3,7 +3,7 @@
 import tkinter as tk
 
 
-class FrameTrack():
+class TrackFrame():
 
     def __init__(self, master):
 
@@ -13,7 +13,7 @@ class FrameTrack():
         self.track = tk.StringVar()
         self.run_time = tk.StringVar()
 
-        frame_track = tk.LabelFrame(master.root, text="Song", relief=tk.FLAT)
+        frame_track = tk.LabelFrame(self.master.root, text="Song", relief=tk.FLAT)
         frame_track.place(x=0, y=0, width=600, height=100)
         song_track = tk.Label(frame_track, textvariable=self.track).grid(row=0, column=0, padx=10, pady=5)
         track_time = tk.Label(frame_track, textvariable=self.run_time, width=20).grid(row=1, column=0, padx=10, pady=5)
@@ -40,10 +40,12 @@ class FrameTrack():
 
         time_str += f"{minutes:02d}:{seconds:02d}"
         
-        return time_str
+        return time_str        
 
-    def set_run_time(self, time: float):
-        self.run_time.set(self.run_time_str(time))
+    def loop_runtime(self):
+        if self.master.playback_status == self.master.status_enum.PLAYING:
+            self.run_time.set(self.run_time_str(self.master.mixer.get_pos()))
+        elif self.master.playback_status == self.master.status_enum.STOPPED:
+            self.run_time.set("")
 
-    def clear_run_time(self):
-        self.run_time.set("")
+        self.master.root.after(100, self.loop_runtime)

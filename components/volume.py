@@ -4,6 +4,7 @@ import tkinter as tk
 
 from pygame import mixer
 
+
 class Mixer():
 
     def __init__(self):
@@ -37,11 +38,12 @@ class Mixer():
         mixer.music.set_volume(volume)
 
 
-class FrameVolume():
+class VolumeControls():
 
     def __init__(self, master):
 
         self.master = master
+        self.master.mixer = self.master.mixer
 
         # Flags
         self.mute = tk.BooleanVar()
@@ -49,7 +51,7 @@ class FrameVolume():
         # Get default volume
         self.volume = mixer.music.get_volume()
 
-        frame_volume = tk.LabelFrame(master.root, text="Volume Controls", relief=tk.FLAT)
+        frame_volume = tk.LabelFrame(self.master.root, text="Volume Controls", relief=tk.FLAT)
         frame_volume.place(x=0, y=200, width=600, height=75)
         scl_volume = tk.Scale(frame_volume, showvalue=0, command=self.set_volume, orient=tk.HORIZONTAL, width=10)
         scl_volume.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
