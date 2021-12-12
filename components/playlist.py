@@ -8,7 +8,7 @@ import music_tag
 # STARTING_DIR = r"Mike Oldfield/Light And Shade"
 STARTING_DIR = r"Blackmores Night/Natures Light (2001)"
 FORMATS = [".mp3", ".vaw", ".ogg"]
-TAG_NAMES = ["tracktitle", "artist", "album", "tracknumber"]
+TAG_NAMES = ["artist", "album", "tracknumber", "tracktitle"]
 
 
 class Playlist():
@@ -75,8 +75,16 @@ class Playlist():
                 path = os.path.join(root_dir, file)
                 # Load and process tags -> this can be its own function
                 tags = music_tag.load_file(path)
-                song = {key: tags[key].value for key in TAG_NAMES} # What if song doesn't have tags?
-                song_id = f"{song['artist']} - {song['album']} - {song['tracknumber']} - {song['tracktitle']}"
+                song = {key: tags[key].value for key in TAG_NAMES if tags[key].value}
+                # What if song doesn't have tags?
+                # -> Only if song has all the tags from TAG_NAMES, create a new name
+                # -> If only one is missiong then use the file name
+                if len(song) == len(TAG_NAMES):
+                    # All tags found
+                    song_id = f"{song['artist']} - {song['album']} - {song['tracknumber']} - {song['tracktitle']}"
+                if not song:
+                    # At least one tag missing
+                    song_id = os.path.splitext(file)[0]
                 song["path"] = path
                 loaded_files[song_id] = song
         # Check if any songs loaded
