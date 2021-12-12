@@ -6,8 +6,8 @@ from tkinter.constants import SINGLE, VERTICAL
 
 import music_tag
 
-from runtime import run_time_str
 from components.volume import Mixer, FrameVolume
+from components.track import FrameTrack
 
 root = tk.Tk()
 
@@ -32,8 +32,6 @@ class MusicPlayer():
         # Flags
         self.playback_status = PlaybackStatus.STOPPED
         # Label variables
-        self.track = tk.StringVar()
-        self.run_time = tk.StringVar()
 
         # Get default volume
         self.volume = self.mixer.get_volume()
@@ -50,10 +48,7 @@ class MusicPlayer():
         root.config(menu=menu_bar)
 
         # Track Frame (for song label and time)
-        frame_track = tk.LabelFrame(root, text="Song", relief=tk.FLAT)
-        frame_track.place(x=0, y=0, width=600, height=100)
-        song_track = tk.Label(frame_track, textvariable=self.track).grid(row=0, column=0, padx=10, pady=5)
-        track_time = tk.Label(frame_track, textvariable=self.run_time, width=20).grid(row=1, column=0, padx=10, pady=5)
+        self.track = FrameTrack(self)
 
         # Button Frame
         frame_button = tk.LabelFrame(self.root, text="Controls", relief=tk.FLAT)
@@ -171,7 +166,7 @@ class MusicPlayer():
     def song_stop(self):
         self.mixer.stop()
         self._set_status(PlaybackStatus.STOPPED)
-        self.track.set("")                          # Clear song_track label
+        self.track.clear()                          # Clear song_track label
         self.playlistbox.selection_clear(0, tk.END) # Clear playlist selection
         self.playlistbox.see(0)
 
@@ -211,9 +206,9 @@ class MusicPlayer():
 
     def loop_runtime(self):
         if self.playback_status == PlaybackStatus.PLAYING:
-            self.run_time.set(run_time_str(self.mixer.get_pos()))
+            self.track.set_run_time(self.mixer.get_pos())
         elif self.playback_status == PlaybackStatus.STOPPED:
-            self.run_time.set("")
+            self.track.clear_run_time()
 
         root.after(100, self.loop_runtime)
 
