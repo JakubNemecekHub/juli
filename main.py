@@ -2,7 +2,9 @@ import os
 from enum import Enum
 import tkinter as tk
 
-from components.volume import Mixer, VolumeControls
+# from components.mixer.pygamemixer import PygameMixer as Mixer
+from components.mixer.justmixer import JustMixer as Mixer
+from components.volume import VolumeControls
 from components.track import TrackFrame
 from components.controls import Controls
 from components.playlist import Playlist

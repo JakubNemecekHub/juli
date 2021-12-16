@@ -21,7 +21,7 @@ class Menu():
         self.master.root.config(menu=menu_bar)
 
     def menu_exit(self):
-        self.root.destroy()
+        self.master.root.destroy()
 
     def menu_open_folder(self):
         dir = filedialog.askdirectory(initialdir=self.master.INITIAL_DIR, title="Select a folder")

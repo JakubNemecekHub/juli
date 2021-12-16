@@ -3,12 +3,12 @@
 import os
 import tkinter as tk
 
-import music_tag
+from .tag.tag import get_tags
 
 # STARTING_DIR = r"Mike Oldfield/Light And Shade"
 STARTING_DIR = r"Blackmores Night/Natures Light (2001)"
 FORMATS = [".mp3", ".vaw", ".ogg"]
-TAG_NAMES = ["artist", "album", "tracknumber", "tracktitle"]
+# TAG_NAMES = ["artist", "album", "tracknumber", "tracktitle"]
 
 
 class Playlist():
@@ -19,6 +19,7 @@ class Playlist():
 
         # Playlist
         self.list = {}
+        self.active_song_index = -1
 
         # Playlist Frame
         frame_playlist = tk.LabelFrame(self.master.root, text="Playlist", relief=tk.FLAT)
@@ -43,15 +44,21 @@ class Playlist():
         self.box.activate(index)
         self.box.selection_set(index)
         self.box.see(index)
+        # Store index of active song, because box is not reliable
+        # How to check if above code was succesfull?
+        if index < self.box.size():
+            self.active_song_index = index
+        else:
+            self.active_song_index = -1 # What exactly to do here? 
 
     def is_selected(self) -> bool:
         return bool(self.box.curselection())
 
     def get_index(self):
-        return self.box.curselection()[0]
+        return self.active_song_index 
 
     def get_active(self):
-        return self.box.get(tk.ACTIVE) # Is it boolean?
+        return self.box.get(tk.ACTIVE)
 
     def size(self):
         return self.box.size()
@@ -59,6 +66,7 @@ class Playlist():
     def clear_selection(self):
         self.box.selection_clear(0, tk.END)
         self.box.see(0)
+        self.active_song_index = -1
 
     def add(self, item):
         # TO DO: parse song tags and update the list
@@ -73,19 +81,7 @@ class Playlist():
                 if os.path.splitext(file)[1] not in FORMATS:
                     continue
                 path = os.path.join(root_dir, file)
-                # Load and process tags -> this can be its own function
-                tags = music_tag.load_file(path)
-                song = {key: tags[key].value for key in TAG_NAMES if tags[key].value}
-                # What if song doesn't have tags?
-                # -> Only if song has all the tags from TAG_NAMES, create a new name
-                # -> If only one is missiong then use the file name
-                if len(song) == len(TAG_NAMES):
-                    # All tags found
-                    song_id = f"{song['artist']} - {song['album']} - {song['tracknumber']} - {song['tracktitle']}"
-                if not song:
-                    # At least one tag missing
-                    song_id = os.path.splitext(file)[0]
-                song["path"] = path
+                song_id, song = get_tags(path)
                 loaded_files[song_id] = song
         # Check if any songs loaded
         if not loaded_files:
@@ -97,15 +93,15 @@ class Playlist():
         if not append:
             self.list.clear()           # playlist
             self.box.delete(0, tk.END)  # playlistbox
-        # Populate playlistbox
-        self.list = loaded_files.copy()
+        # Populate playlistbox with sorted songs
+        self.list = dict(sorted(loaded_files.items(), key = lambda item: item[0])) # Is it slow?
         for song_id in self.list.keys():
             self.box.insert(tk.END, song_id)
 
     def loop_continuity(self):
         if self.master.playback_status == self.master.status_enum.PLAYING and not self.master.mixer.get_busy():
             # If at the last song of the playlist -> STOPPED
-            current_index = self.get_index()
+            current_index = self.get_index()    # The problem lays here
             if current_index == self.size() - 1:
                 self.master.playback_status = self.master.status_enum.STOPPED
             else:
@@ -117,4 +113,5 @@ class Playlist():
         self.master.root.after(100, self.loop_continuity)
 
     def double(self, event):
+        self.active_song_index = self.box.curselection()[0]
         self.master.controls.song_play()
