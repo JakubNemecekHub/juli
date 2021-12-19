@@ -18,6 +18,9 @@ class Manager():
         self.controls = Controls()      # Controls # WIP
         self.play_bar = PlayBar()       # Play Bar # WIP
         self.playlist = Playlist(self.double_click)      # Playlist # WIP
+        # Load first songs
+        dir = os.path.join(os.environ["INITIAL_DIR"], os.environ["STARTING_DIR"])
+        self.playlist.add_folder(dir, append=False)
         self.status_bar = StatusBar()   # Status Bar # WIP
 
         self.gui = ManagerGui(

@@ -29,9 +29,7 @@ class PlaylistBox():
 
     def __init__(self, double_click: typing.Callable):
         # Playlist Frame
-        self.frame = tk.LabelFrame(relief=tk.FLAT) 
-        # frame_playlist.place(x=600, y=0, width=400, height=300)
-        # frame.pack(fill=tk.X)
+        self.frame = tk.LabelFrame(relief=tk.FLAT)
         scroll_y_playlist = tk.Scrollbar(self.frame, orient=tk.VERTICAL)
         self.box = tk.Listbox(self.frame, yscrollcommand=scroll_y_playlist.set, selectmode=tk.SINGLE, height=16)
         scroll_y_playlist.pack(side=tk.RIGHT, fill=tk.Y)
@@ -65,10 +63,6 @@ class Playlist():
         self.list = []              # List of Songs object
         self.active = 0             # Index of active song in self.list
         self.box = PlaylistBox(double_click)    # widget to show songs
-        self.INITIAL_DIR = r"/home/jakub/Music" # Pass as argument?
-        STARTING_DIR = r"Blackmores Night/Natures Light (2001)" # Pass as argument?
-        # Load first songs
-        self.add_folder(os.path.join(self.INITIAL_DIR, STARTING_DIR), append=False)
 
     def get(self) -> Song:
         """ Returns active Song """
