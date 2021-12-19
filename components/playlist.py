@@ -155,7 +155,7 @@ class Playlist():
         # Return song_id and song
         return Song(song)
 
-    def add_folder(self, path: str, append=True):
+    def add_folder(self, path: str, append=True) -> bool:
         FORMATS = [".mp3", ".vaw", ".ogg"] # Should be saved with mixer and passed to this method
         # Load files
         loaded_files = []
@@ -167,11 +167,9 @@ class Playlist():
                 path = os.path.join(root, file)
                 loaded_files.append(self.get_song(path))
         # Check if any songs loaded
-        if not loaded_files: # TO DO: move to manager
+        if not loaded_files:
             # No supported songs founds
-            self.master.status_bar.set_files_status("No files found")
-            self.master.root.after(3000, lambda : self.master.status_bar.set_files_status(""))
-            return
+            return False
         # Delete present songs if not append
         if not append:
             self.list.clear()               # playlist
@@ -180,6 +178,7 @@ class Playlist():
         self.list = loaded_files.copy() # TO DO: sort them
         for song in self.list:
             self.box.box.insert(tk.END, song.id)
+        return True
 
     def add_songs(self, paths: list[str]):
         for path in paths:

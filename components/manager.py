@@ -53,14 +53,18 @@ class Manager():
         if dir:
             # Directory selected
             self.controls.stop()
-            self.playlist.add_folder(dir, append=False)
+            if not self.playlist.add_folder(dir, append=False):
+                # No supported files found
+                self.status_bar.set_message("No files found")
 
     def menu_add_folder(self) -> None:
         dir = filedialog.askdirectory(initialdir=self.playlist.INITIAL_DIR, title="Select a folder")
         if dir:
             # Directory selected
             self.controls.stop()
-            self.playlist.add_folder(dir, append=True)
+            if not self.playlist.add_folder(dir, append=True):
+                # No supported files found
+                self.status_bar.set_message("No files found")
 
     def menu_add_songs(self) -> None:
         FILE_TYPES = [("Music format", ".mp3"), ("Music format", ".vaw"), ("Music format", ".ogg")] # Must be based on Mixer capabilities

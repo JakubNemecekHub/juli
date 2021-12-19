@@ -3,8 +3,8 @@
 import tkinter as tk
 
 from .enums import *
-from .mixer.justmixer import JustMixer as Mixer
-# from .mixer.pygamemixer import PygameMixer As Mixer
+# from .mixer.justmixer import JustMixer as Mixer
+from .mixer.pygamemixer import PygameMixer as Mixer
 
 # Define Protocol for Song? With only what is needed for controls?
 

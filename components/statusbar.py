@@ -23,6 +23,8 @@ class StatusBar():
 
     def set_message(self, status: str) -> None:
         self._message.set(status)
+        # Hide message after 3s
+        self.frame.after(3000, self.reset_message)
 
     def reset_status(self) -> None:
         self._status.set("")
