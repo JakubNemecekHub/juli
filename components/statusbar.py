@@ -5,19 +5,27 @@ import tkinter as tk
 
 class StatusBar():
 
-    def __init__(self, master):
+    def __init__(self):
 
-        self.master = master
+        self._status = tk.StringVar()
+        self._message = tk.StringVar()
 
-        self.status_playback = tk.StringVar()
-        self.status_files = tk.StringVar()
-        frame_status = tk.LabelFrame(self.master.root, relief=tk.FLAT)
-        frame_status.place(x=0, y=275, width=600, height=25)
-        tk.Label(frame_status, textvariable=self.status_playback).grid(row=0, column=0, padx=5, pady=0) # track_status
-        tk.Label(frame_status, textvariable=self.status_files).grid(row=0, column=1, padx=5, pady=0)    # files_status
+        self.frame = tk.LabelFrame(relief=tk.FLAT) 
+        # Status label
+        l_status = tk.Label(self.frame, textvariable=self._status)
+        l_status.grid(row=0, column=0, padx=5, pady=0)
+        # Message label
+        l_message = tk.Label(self.frame, textvariable=self._message)
+        l_message.grid(row=0, column=1, padx=5, pady=0) 
 
-    def set_playback_status(self, status: str):
-        self.status_playback.set(status)
+    def set_status(self, status: str) -> None:
+        self._status.set(status)
 
-    def set_files_status(self, status: str):
-        self.status_files.set(status)
+    def set_message(self, status: str) -> None:
+        self._message.set(status)
+
+    def reset_status(self) -> None:
+        self._status.set("")
+
+    def reset_message(self) -> None:
+        self._message.set("")

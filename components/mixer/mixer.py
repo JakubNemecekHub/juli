@@ -30,11 +30,11 @@ class Mixer(ABC):
         return None
 
     @abstractmethod
-    def get_pos(self) -> int:
+    def get_position(self) -> int:
         """ Returns position in milliseconds. """
         pass
 
-    def set_pos(self, position: int):
+    def set_position(self, position: int):
         """ Takes in milliseconds. """
         pass
 

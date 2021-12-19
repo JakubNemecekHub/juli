@@ -30,11 +30,11 @@ class JustMixer(Mixer):
     def get_duration(self) -> int:
         return int(self.mixer.duration * 1000)
 
-    def get_pos(self) -> int:
+    def get_position(self) -> int:
         # normally returns seconds as float
         return int(self.mixer.curr_pos * 1000)
 
-    def set_pos(self, position: int):
+    def set_position(self, position: int):
         position_s = position // 1000
         self.mixer.seek(position_s)
 

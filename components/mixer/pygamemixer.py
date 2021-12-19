@@ -26,7 +26,7 @@ class PygameMixer(Mixer):
     def stop(self):
         mixer.music.stop()
 
-    def get_pos(self) -> int:
+    def get_position(self) -> int:
         return mixer.music.get_pos() # returns milliseconds
 
     def get_busy(self) -> bool:

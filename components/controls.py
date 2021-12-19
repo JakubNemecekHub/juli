@@ -2,81 +2,80 @@
 
 import tkinter as tk
 
+from .enums import *
+from .mixer.justmixer import JustMixer as Mixer
+# from .mixer.pygamemixer import PygameMixer As Mixer
+
+# Define Protocol for Song? With only what is needed for controls?
+
 
 class Controls():
 
-    def __init__(self, master):
+    def __init__(self):
 
-        self.master = master
+        self._mixer = Mixer()
+        self._play_state = PlaybackStatus.STOPPED
+        self.volume_state = tk.BooleanVar(False)    # True means is muted
+                                                    # Default is False, e.g. umuted
+        self._volume = 0                            # Volume level used for unmuting 
 
-        frame_button = tk.LabelFrame(master.root, text="Controls", relief=tk.FLAT)
-        frame_button.place(x=0, y=100, width=600, height=100)
-        btn_play = tk.Button(frame_button, text="Play", command=self.song_play).grid(row=0, column=0, padx=10, pady=2.5)
-        btn_pause = tk.Button(frame_button, text="Pause", command=self.song_pause).grid(row=0, column=1, padx=10, pady=2.5)
-        btn_stop = tk.Button(frame_button, text="Stop", command=self.song_stop).grid(row=0, column=3, padx=10, pady=2.5)
-        btn_previous = tk.Button(frame_button, text="Previous", command=self.song_previous).grid(row=1, column=0, padx=10, pady=2.5)
-        btn_next = tk.Button(frame_button, text="Next", command=self.song_next).grid(row=1, column=1, padx=10, pady=2.5)
-        self.scl_time = tk.Scale(frame_button, showvalue=0, command=self.song_set_position, orient=tk.HORIZONTAL)
-        self.scl_time.grid(row=1, column=2, columnspan=3)
-        self.scl_time.set(0)
+    def play(self, song) -> None:
+        self._mixer.load(song.path)                 # Load selected song
+        self._mixer.play()                          # Play the song
+        self._play_state = PlaybackStatus.PLAYING   # Set status
 
-    def _set_status(self, status):
-        self.master.status_bar.set_playback_status(status.value)
-        self.master.playback_status = status
-    
-    def song_play(self):
-        # Nothing is selected -> select first song
-        if not self.master.playlist.is_selected():
-            self.master.playlist.select(0)
+    def pause(self) -> bool:
+        if self._play_state == PlaybackStatus.PLAYING:
+            self._mixer.pause()
+            self._play_state = PlaybackStatus.PAUSED
+            return PlaybackStatus.PAUSED
+        elif self._play_state == PlaybackStatus.PAUSED:
+            self._mixer.unpause()
+            self._play_state = PlaybackStatus.PLAYING
+            return PlaybackStatus.PLAYING
+        return None
 
-        active_song = self.master.playlist.get_active()
-        self.master.mixer.load(self.master.playlist.list[active_song]["path"])  # Load selected song
-        self.master.track.set(active_song)                                      # Display selected song
-        self._set_status(self.master.status_enum.PLAYING)                       # Update Status bar
-        self.master.mixer.play()                                                # Play the song
+    def stop(self) -> bool:
+        self._mixer.stop()
+        self._play_state = PlaybackStatus.STOPPED
+        return True
 
-    def song_pause(self):
-        if self.master.playback_status == self.master.status_enum.PLAYING:
-            self.master.mixer.pause()
-            self._set_status(self.master.status_enum.PAUSED)
-        elif self.master.playback_status == self.master.status_enum.PAUSED:
-            self.master.mixer.unpause()
-            self._set_status(self.master.status_enum.PLAYING)
+    def is_playing(self) -> bool:
+        return self._play_state == PlaybackStatus.PLAYING
 
-    def song_stop(self):
-        self.master.mixer.stop()
-        self._set_status(self.master.status_enum.STOPPED)
-        self.master.track.clear()              # Clear song_track label
-        self.master.playlist.clear_selection() # Clear playlist selection
+    def is_paused(self) -> bool:
+        return self._play_state == PlaybackStatus.PAUSED
 
-    def song_next(self):
-        try:
-            current_index = self.master.playlist.get_index()
-        except IndexError:
-            # No Selection -> start from beginning
-            current_index = -1
+    def is_stopped(self) -> bool:
+        return self._play_state == PlaybackStatus.STOPPED
 
-        if current_index < self.master.playlist.size() - 1:
-            # Last item not selected
-            next_index = current_index + 1
-            self.master.playlist.select(next_index)
+    def is_busy_not_playing(self) -> None:
+        return self.is_playing() and not self._mixer.get_busy()
 
-            self.song_play()
+    def get_volume(self) -> float:
+        return self._mixer.get_volume()
 
-    def song_previous(self):
-        try:
-            current_index = self.master.playlist.get_index()
-        except IndexError:
-            # No Selection -> do nothing
-            return
+    def set_volume(self, volume: float) -> None:
+        self._mixer.set_volume(volume)
+        if self.volume_state.get():
+            self.volume_state.set(False)
 
-        if current_index > 0:
-            # First item not selected
-            next_index = current_index - 1
-            self.master.playlist.select(next_index)
+    def toggle_mute(self) -> None:
+        if self.volume_state.get():     # Activate mute
+            self._volume = self._mixer.get_volume()
+            self._mixer.set_volume(0.0)
+            self.volume_state.set(True)
+        else:                           # Deactivate mute
+            self._mixer.set_volume(self._volume)
+            self.volume_state.set(False)
 
-            self.song_play()
+    def get_position(self) -> int:
+        return self._mixer.get_position()
 
-    def song_set_position(self, position: int):
-        duration = self.master.mixer.get_duration()
-        value = duration * (int(position) / 100)
+    def set_position(self, position: int) -> None:
+        self._mixer.set_position(position)
+        # duration = self.master.mixer.get_duration()
+        # value = duration * (int(position) / 100)
+
+    def get_duration(self) -> int:
+        return int(self._mixer.get_duration())
