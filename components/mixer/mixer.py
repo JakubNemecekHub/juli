@@ -27,7 +27,7 @@ class Mixer(ABC):
 
     def get_duration(self) -> int:
         """ Return song duration in milliseconds. """
-        return None
+        return 0
 
     @abstractmethod
     def get_position(self) -> int:

@@ -3,8 +3,8 @@
 import tkinter as tk
 
 from .enums import *
-from .mixer.justmixer import JustMixer as Mixer
-# from .mixer.pygamemixer import PygameMixer as Mixer
+from .mixer.justmixer import JustMixer
+from .mixer.pygamemixer import PygameMixer
 
 # Define Protocol for Song? With only what is needed for controls?
 
@@ -13,11 +13,21 @@ class Controls():
 
     def __init__(self):
 
-        self._mixer = Mixer()
+        self._mixer = JustMixer()
         self._play_state = PlaybackStatus.STOPPED
         self.volume_state = tk.BooleanVar(False)    # True means is muted
                                                     # Default is False, e.g. umuted
-        self._volume = 0                            # Volume level used for unmuting 
+        self._volume = 0                            # Volume level used for unmuting
+
+    def set_mixer(self, mixer: str) -> None:
+        """ Set mixer during runtime """
+        # Stop everything
+        self.stop()
+        # Set new mixer
+        if mixer == "JustMixer":
+            self._mixer = JustMixer()
+        elif mixer == "PygameMixer":
+            self._mixer = PygameMixer()
 
     def play(self, song) -> None:
         self._mixer.load(song.path)                 # Load selected song

@@ -43,7 +43,9 @@ class Manager():
             root,
             self.menu_open_folder,
             self.menu_add_folder,
-            self.menu_add_songs
+            self.menu_add_songs,
+            self.mixer_set_justplayback,
+            self.mixer_set_pygame
         )
 
         # TO DO: Sort pack order in manager
@@ -53,6 +55,7 @@ class Manager():
         self.status_bar.frame.pack(fill=tk.X)
 
     # === Menu
+    # === ==== Files
     def menu_open_folder(self) -> None:
         dir = filedialog.askdirectory(initialdir=self.INITIAL_DIR, title="Select a folder")
         if dir:
@@ -75,6 +78,12 @@ class Manager():
         types = self.controls.file_types()
         selection = filedialog.askopenfilenames(initialdir=self.INITIAL_DIR, title="Select a song", filetypes=types)
         self.playlist.add_songs(selection)
+    # === ==== Mixers
+    def mixer_set_justplayback(self) -> None:
+        self.controls.set_mixer("JustMixer")
+
+    def mixer_set_pygame(self) -> None:
+        self.controls.set_mixer("PygameMixer")
 
     # === Playback
     def play(self) -> None:
