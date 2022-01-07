@@ -3,8 +3,8 @@
 import tkinter as tk
 
 from .enums import *
-# from .mixer.justmixer import JustMixer as Mixer
-from .mixer.pygamemixer import PygameMixer as Mixer
+from .mixer.justmixer import JustMixer as Mixer
+# from .mixer.pygamemixer import PygameMixer as Mixer
 
 # Define Protocol for Song? With only what is needed for controls?
 
@@ -79,3 +79,9 @@ class Controls():
 
     def get_duration(self) -> int:
         return int(self._mixer.get_duration())
+
+    def supported_formats(self) -> list[str]:
+        return self._mixer.supported_formats()
+
+    def file_types(self) -> list[str]:
+        return self._mixer.file_types()

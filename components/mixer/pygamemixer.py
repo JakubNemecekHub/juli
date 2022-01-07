@@ -10,6 +10,7 @@ class PygameMixer(Mixer):
     def __init__(self):
         print("Pygame")
         mixer.init()
+        self.FORMATS = [".mp3", ".vaw", ".ogg"]
 
     def load(self, file: str):
         mixer.music.load(file)
@@ -37,3 +38,9 @@ class PygameMixer(Mixer):
 
     def set_volume(self, volume: float):
         mixer.music.set_volume(volume)
+
+    def supported_formats(self) -> list[str]:
+        return self.FORMATS
+
+    def file_types(self) -> list[str]:
+        return [("Music format", format) for format in self.FORMATS]

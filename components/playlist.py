@@ -7,8 +7,6 @@ import typing
 import music_tag
 import mutagen
 
-FORMATS = [".mp3", ".vaw", ".ogg"] # Should move to mixer
-
 
 class Song():
 
@@ -149,14 +147,13 @@ class Playlist():
         # Return song_id and song
         return Song(song)
 
-    def add_folder(self, path: str, append=True) -> bool:
-        FORMATS = [".mp3", ".vaw", ".ogg"] # Should be saved with mixer and passed to this method
+    def add_folder(self, path: str, formats: list[str], append=True) -> bool:
         # Load files
         loaded_files = []
         for root, dirs, files in os.walk(path): # What if path contains subfolders with music files?
             for file in files:
                 # Skip non-supported formats
-                if os.path.splitext(file)[1] not in FORMATS:
+                if os.path.splitext(file)[1] not in formats:
                     continue
                 path = os.path.join(root, file)
                 loaded_files.append(self.get_song(path))

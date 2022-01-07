@@ -49,3 +49,11 @@ class Mixer(ABC):
     @abstractmethod
     def set_volume(self, volume: float):
         pass
+
+    @abstractmethod
+    def supported_formats(self) -> list[str]:
+        pass
+
+    @abstractmethod
+    def file_types(self) -> list[str]:
+        pass
