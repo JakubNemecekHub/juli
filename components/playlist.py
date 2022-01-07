@@ -137,7 +137,8 @@ class Playlist():
         else:
             # At least one tag missing
             full_name = os.path.basename(path)
-            song_id = os.path.splitext(full_name)[0]
+            song_id = os.path.splitext(full_name)[0]    # Create id from filename
+            song["tracktitle"] = song_id                # Create tracktitle from filename
         song["id"] = song_id
         # Add path
         song["path"] = path
