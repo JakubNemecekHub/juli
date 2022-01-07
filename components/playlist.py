@@ -166,8 +166,9 @@ class Playlist():
         if not append:
             self.list.clear()               # playlist
             self.box.box.delete(0, tk.END)  # playlistbox # TO DO: nadefinovat v PlaylistBox
-        # Populate playlistbox with sorted songs
-        self.list = loaded_files.copy() # TO DO: sort them
+        # Populate playlistbox with songs
+        self.list = loaded_files.copy()
+        self.list.sort(key=lambda obj: obj.id) # Sort them by their id
         for song in self.list:
             self.box.box.insert(tk.END, song.id)
         return True
