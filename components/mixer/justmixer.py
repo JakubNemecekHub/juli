@@ -10,7 +10,7 @@ class JustMixer(Mixer):
     def __init__(self):
         print("JustPlayback")
         self.mixer = Playback()
-        self.FORMATS = [".mp3", ".vaw", ".ogg"]
+        self.FORMATS = [".mp3", ".vaw", ".ogg", ".flac"]
 
     def load(self, file: str):
         # Check formats?
