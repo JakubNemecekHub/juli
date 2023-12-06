@@ -14,7 +14,7 @@ class Manager():
     def __init__(self, root: tk.Tk):
 
         self.time_var = tk.IntVar()
-       
+
         self.controls = Controls()      # Controls # WIP
         self.play_bar = PlayBar()       # Play Bar # WIP
         self.playlist = Playlist(self.double_click)      # Playlist # WIP
@@ -57,6 +57,7 @@ class Manager():
     # === Menu
     # === ==== Files
     def menu_open_folder(self) -> None:
+        # breakpoint()
         dir = filedialog.askdirectory(initialdir=self.INITIAL_DIR, title="Select a folder")
         if dir:
             # Directory selected
@@ -98,7 +99,7 @@ class Manager():
             self.status_bar.set_status(PlaybackStatus.PLAYING.value)
             # 5) Update time scale range
             self.gui.scl_time.config(to=self.controls.get_duration())
-    
+
     def pause(self) -> None:
         pause_results = self.controls.pause()
         if pause_results:
@@ -183,13 +184,13 @@ class ManagerGui():
         # Must be self... otherwise Python garbage collector will destroy them
         # Is there any other way?
         _icon_folder = "icons"
-        self.icon_play = tk.PhotoImage(file=os.path.join(_icon_folder, "play.png")).subsample(2, 2)
-        self.icon_pause = tk.PhotoImage(file=os.path.join(_icon_folder, "pause.png")).subsample(2, 2)
-        self.icon_stop = tk.PhotoImage(file=os.path.join(_icon_folder, "stop.png")).subsample(2, 2)
-        self.icon_previous = tk.PhotoImage(file=os.path.join(_icon_folder, "previous.png")).subsample(2, 2)
-        self.icon_next = tk.PhotoImage(file=os.path.join(_icon_folder, "next.png")).subsample(2, 2)
+        self.icon_play = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "play.png")).subsample(2, 2)
+        self.icon_pause = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "pause.png")).subsample(2, 2)
+        self.icon_stop = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "stop.png")).subsample(2, 2)
+        self.icon_previous = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "previous.png")).subsample(2, 2)
+        self.icon_next = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "next.png")).subsample(2, 2)
 
-        self.frame = tk.LabelFrame(relief=tk.FLAT) 
+        self.frame = tk.LabelFrame(relief=tk.FLAT)
         # frame.pack(fill=tk.X)
         # Play
         btn_play = tk.Button(self.frame, image=self.icon_play, borderwidth=0, command=play)

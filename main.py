@@ -8,7 +8,7 @@ class MusicPlayer():
     def __init__(self):
         self.root = tk.Tk()    # The TkInter window object
         self.root.title("Juli Music Player")
-        self.root.iconphoto(False, tk.PhotoImage(file="icon.png"))
+        self.root.iconphoto(False, tk.PhotoImage(file=r"icons\\icon.png"))
         self.root.geometry("400x550+100+100") # Width x Height + x + y positions
 
         self.manager = Manager(self.root)
