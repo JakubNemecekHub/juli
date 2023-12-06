@@ -15,9 +15,9 @@ class Controls():
 
         self._mixer = JustMixer()
         self._play_state = PlaybackStatus.STOPPED
-        self.volume_state = tk.BooleanVar(False)    # True means is muted
-                                                    # Default is False, e.g. umuted
-        self._volume = 0                            # Volume level used for unmuting
+        self.volume_state = tk.BooleanVar() # True means is muted
+                                            # Default is False, e.g. umuted
+        self._volume = 0                    # Volume level used for unmuting
 
     def set_mixer(self, mixer: str) -> None:
         """ Set mixer during runtime """
