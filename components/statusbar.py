@@ -1,21 +1,21 @@
 """ Status Bar """
 
-import tkinter as tk
+import customtkinter as ctk
 
 
 class StatusBar():
 
-    def __init__(self):
+    def __init__(self, root: ctk.CTk):
 
-        self._status = tk.StringVar()
-        self._message = tk.StringVar()
+        self._status = ctk.StringVar()
+        self._message = ctk.StringVar()
 
-        self.frame = tk.LabelFrame(relief=tk.FLAT) 
+        self.frame = ctk.CTkFrame(root) 
         # Status label
-        l_status = tk.Label(self.frame, textvariable=self._status)
+        l_status = ctk.CTkLabel(self.frame, textvariable=self._status)
         l_status.grid(row=0, column=0, padx=5, pady=0)
         # Message label
-        l_message = tk.Label(self.frame, textvariable=self._message)
+        l_message = ctk.CTkLabel(self.frame, textvariable=self._message)
         l_message.grid(row=0, column=1, padx=5, pady=0) 
 
     def set_status(self, status: str) -> None:

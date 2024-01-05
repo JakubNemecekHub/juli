@@ -1,15 +1,14 @@
 """ Menu """
 import typing
 
-
 import tkinter as tk
-from tkinter import filedialog
+import customtkinter as ctk
 
 
 class Menu():
 
     def __init__(self,
-        root: tk.Tk,
+        root: ctk.CTk,
         open_folder: typing.Callable,
         add_folder: typing.Callable,
         add_songs: typing.Callable,

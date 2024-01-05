@@ -1,4 +1,7 @@
-import tkinter as tk
+import os
+
+import customtkinter as ctk
+from PIL import ImageTk
 
 from components.manager import Manager
 
@@ -6,10 +9,13 @@ from components.manager import Manager
 class MusicPlayer():
 
     def __init__(self):
-        self.root = tk.Tk()    # The TkInter window object
+        ctk.set_appearance_mode("dark")     # May change to "system" in the future
+        self.root = ctk.CTk()               # The Custom TkInter window object
         self.root.title("Juli Music Player")
-        self.root.iconphoto(False, tk.PhotoImage(file=r"icons\\icon.png"))
-        self.root.geometry("400x550+100+100") # Width x Height + x + y positions
+        icon = ImageTk.PhotoImage(file=os.path.join("icons", "icon.png"))
+        self.root.wm_iconbitmap()
+        self.root.iconphoto(False, icon)
+        self.root.geometry("600x550+100+100") # Width x Height + x + y positions
 
         self.manager = Manager(self.root)
 

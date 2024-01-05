@@ -8,6 +8,10 @@ pygame = "*"
 music-tag = "*"
 just-playback = "*"
 mutagen = "*"
+customtkinter = "*"
+packaging = "*"
+ctklistbox = "*"
+pillow = "*"
 
 [dev-packages]
 

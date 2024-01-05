@@ -1,27 +1,24 @@
-""" Tack Frame """
-
 import time
-import tkinter as tk
+import customtkinter as ctk
 
-# Define Protocol fo Song?
+# Define Protocol for Song?
 
 
 class PlayBar():
 
-    def __init__(self):
+    def __init__(self, root: ctk.CTk):
 
         # Label variables
-        self.track = tk.StringVar()
-        self.time = tk.StringVar()
-        self.duration = tk.StringVar()
+        self.track = ctk.StringVar()
+        self.time = ctk.StringVar()
+        self.duration = ctk.StringVar()
 
-        self.frame = tk.LabelFrame(relief=tk.FLAT) 
-        # self.frame.pack(fill=tk.X)
-        l_track = tk.Label(self.frame, textvariable=self.track)
+        self.frame = ctk.CTkFrame(root)
+        l_track = ctk.CTkLabel(self.frame, textvariable=self.track)
         l_track.grid(row=0, column=0, padx=10, pady=5)
-        l_time = tk.Label(self.frame, textvariable=self.time, width=20)
+        l_time = ctk.CTkLabel(self.frame, textvariable=self.time, width=20)
         l_time.grid(row=1, column=0, padx=10, pady=5)
-        l_duration = tk.Label(self.frame, textvariable=self.duration, width=20)
+        l_duration = ctk.CTkLabel(self.frame, textvariable=self.duration, width=20)
         l_duration.grid(row=1, column=1, padx=10, pady=5)
 
     def set(self, song) -> None:

@@ -1,6 +1,7 @@
 import os
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import filedialog
+from PIL import Image
 
 from .controls import Controls
 from .playlist import Playlist
@@ -9,23 +10,25 @@ from .playbar import PlayBar
 from .menu import Menu
 from .enums import *
 
+
 class Manager():
 
-    def __init__(self, root: tk.Tk):
+    def __init__(self, root: ctk.CTk):
 
-        self.time_var = tk.IntVar()
+        self.time_var = ctk.IntVar()
 
-        self.controls = Controls()      # Controls # WIP
-        self.play_bar = PlayBar()       # Play Bar # WIP
-        self.playlist = Playlist(self.double_click)      # Playlist # WIP
+        self.controls = Controls()                         # Controls # WIP
+        self.play_bar = PlayBar(root)                      # Play Bar # WIP
+        self.playlist = Playlist(root, self.double_click)  # Playlist # WIP
         self.formats = self.controls.supported_formats()
         self.INITIAL_DIR = os.environ["INITIAL_DIR"]
         # Load first songs
         dir = os.path.join(self.INITIAL_DIR, os.environ["STARTING_DIR"])
         self.playlist.add_folder(dir, self.formats, append=False)
-        self.status_bar = StatusBar()   # Status Bar # WIP
+        self.status_bar = StatusBar(root)                  # Status Bar # WIP
 
         self.gui = ManagerGui(
+            root,
             self.play,
             self.pause,
             self.stop,
@@ -49,15 +52,14 @@ class Manager():
         )
 
         # TO DO: Sort pack order in manager
-        self.play_bar.frame.pack(fill=tk.X)
-        self.gui.frame.pack(fill=tk.X)
-        self.playlist.box.frame.pack(fill=tk.X)
-        self.status_bar.frame.pack(fill=tk.X)
+        self.play_bar.frame.pack(fill=ctk.X)
+        self.gui.frame.pack(fill=ctk.X)
+        self.playlist.frame.pack(fill=ctk.X)
+        self.status_bar.frame.pack(fill=ctk.X)
 
     # === Menu
     # === ==== Files
     def menu_open_folder(self) -> None:
-        # breakpoint()
         dir = filedialog.askdirectory(initialdir=self.INITIAL_DIR, title="Select a folder")
         if dir:
             # Directory selected
@@ -98,7 +100,7 @@ class Manager():
             # 4) Update status bar
             self.status_bar.set_status(PlaybackStatus.PLAYING.value)
             # 5) Update time scale range
-            self.gui.scl_time.config(to=self.controls.get_duration())
+            self.gui.scl_time.configure(to=self.controls.get_duration())
 
     def pause(self) -> None:
         pause_results = self.controls.pause()
@@ -114,35 +116,26 @@ class Manager():
             self.status_bar.set_status(PlaybackStatus.STOPPED.value)
 
     def previous(self) -> None:
-        # 1) Get previous song from Playlist
-        previous_song = self.playlist.get_previous()
-        # 2) If such a song exists, play it
-        if previous_song:
+        previous_song = self.playlist.get_previous()    # 1) Get previous song from Playlist
+        if previous_song:                               # 2) If such a song exists, play it
             self.controls.play(previous_song)
-            # 3) Update play bar
-            self.play_bar.set(previous_song)
-            # 4) Update status bar
-            self.status_bar.set_status(PlaybackStatus.PLAYING.value)
+            self.play_bar.set(previous_song)            # 3) Update play bar
+            self.status_bar.set_status(PlaybackStatus.PLAYING.value)    # 4) Update status bar
 
     def next(self) -> None:
-        # 1) Get next song from Playlist
-        next_song = self.playlist.get_next()
-        # 2) If such a song exists, play it
-        if next_song:
-            self.controls.play(next_song)
-            # 3) Update play bar
-            self.play_bar.set(next_song)
-            # 4) Update status bar
-            self.status_bar.set_status(PlaybackStatus.PLAYING.value)
+        next_song = self.playlist.get_next()    # 1) Get next song from Playlist
+        if next_song:                           # 2) If such a song exists, play it
+            self.controls.play(next_song)       
+            self.play_bar.set(next_song)        # 3) Update play bar
+            self.status_bar.set_status(PlaybackStatus.PLAYING.value)    # 4) Update status bar
 
-    def set_volume(self, volume: str) -> None:
-        _volume = int(volume)/100
-        self.controls.set_volume(_volume)
+    def set_volume(self, volume: float) -> None:
+        self.controls.set_volume(volume)
 
     def mute(self) -> None:
         self.controls.toggle_mute()
 
-    def double_click(self, event: tk.Event) -> None:
+    def double_click(self, song_id: str) -> None:
         self.play()
 
     def continue_playback(self) -> None:
@@ -178,46 +171,47 @@ class Manager():
 
 class ManagerGui():
 
-    def __init__(self, play, pause, stop, previous, next, volume, set_volume, mute_var, mute_com, time_var, set_position):
+    def __init__(self, root: ctk.CTk, play, pause, stop, previous, next, volume, set_volume, mute_var, mute_com, time_var, set_position):
 
         # Load icons
         # Must be self... otherwise Python garbage collector will destroy them
         # Is there any other way?
         _icon_folder = "icons"
-        self.icon_play = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "play.png")).subsample(2, 2)
-        self.icon_pause = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "pause.png")).subsample(2, 2)
-        self.icon_stop = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "stop.png")).subsample(2, 2)
-        self.icon_previous = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "previous.png")).subsample(2, 2)
-        self.icon_next = tk.PhotoImage(file=os.path.join(_icon_folder, "controls", "next.png")).subsample(2, 2)
+        self.icon_play = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "controls", "play.png")))
+        self.icon_pause = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "controls", "pause.png")))
+        self.icon_stop = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "controls", "stop.png")))
+        self.icon_previous = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "controls", "previous.png")))
+        self.icon_next = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "controls", "next.png")))
 
-        self.frame = tk.LabelFrame(relief=tk.FLAT)
-        # frame.pack(fill=tk.X)
+        self.frame = ctk.CTkFrame(root)
         # Play
-        btn_play = tk.Button(self.frame, image=self.icon_play, borderwidth=0, command=play)
+        btn_play = ctk.CTkButton(self.frame, image=self.icon_play, text="", border_width=0, command=play, width=22)
         btn_play.grid(row=0, column=0, padx=7, pady=2.5)
         # Pause
-        btn_pause = tk.Button(self.frame, image=self.icon_pause, borderwidth=0, command=pause)
+        btn_pause = ctk.CTkButton(self.frame, image=self.icon_pause, text="", border_width=0, command=pause, width=22)
         btn_pause.grid(row=0, column=1, padx=7, pady=2.5)
         # Stop
-        btn_stop = tk.Button(self.frame, image=self.icon_stop, borderwidth=0, command=stop)
+        btn_stop = ctk.CTkButton(self.frame, image=self.icon_stop, text="", border_width=0, command=stop, width=22)
         btn_stop.grid(row=0, column=2, padx=7, pady=2.5)
         # Previous
-        btn_previous = tk.Button(self.frame, image=self.icon_previous, borderwidth=0, command=previous)
+        btn_previous = ctk.CTkButton(self.frame, image=self.icon_previous, text="", border_width=0, command=previous, width=22)
         btn_previous.grid(row=0, column=3, padx=7, pady=2.5)
         # Next
-        btn_next = tk.Button(self.frame, image=self.icon_next, borderwidth=0, command=next)
+        btn_next = ctk.CTkButton(self.frame, image=self.icon_next, text="", border_width=0, command=next, width=22)
         btn_next.grid(row=0, column=4, padx=7, pady=2.5)
+
         # Volume
         # Volume Scale
-        scl_volume = tk.Scale(self.frame, showvalue=0, command=set_volume, orient=tk.HORIZONTAL)
+        scl_volume = ctk.CTkSlider(self.frame, command=set_volume, orientation=ctk.HORIZONTAL)
         scl_volume.set(volume * 100)
-        scl_volume.grid(row=0, column=5, columnspan=3)
+        scl_volume.grid(row=1, column=0, columnspan=8, pady=12)
         # Mute
-        chbtn_mute = tk.Checkbutton(self.frame, text="Mute", variable=mute_var, command=mute_com)
-        chbtn_mute.grid(row=0, column=9)
+        chbtn_mute = ctk.CTkSwitch(self.frame, text="Mute", variable=mute_var, command=mute_com)
+        chbtn_mute.grid(row=1, column=9, pady=12)
+
         # Time
-        self.scl_time = tk.Scale(self.frame, showvalue=0,from_=0, to=100, variable=time_var, command=set_position, orient=tk.HORIZONTAL, length=360)
-        self.scl_time.grid(row=1, column=0, columnspan=10)
+        self.scl_time = ctk.CTkSlider(self.frame, from_=0, to=100, variable=time_var, command=set_position, orientation=ctk.HORIZONTAL, width=360)
+        self.scl_time.grid(row=2, column=1, columnspan=9, pady=12)
         self.scl_time.set(0)
 
     def update_position(self, time: int) -> None:
