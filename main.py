@@ -3,7 +3,9 @@ import os
 import customtkinter as ctk
 from PIL import ImageTk
 
-from components.manager import Manager
+from components.view import View
+from components.model import Model
+from components.controller import Controller
 
 
 class MusicPlayer():
@@ -17,11 +19,23 @@ class MusicPlayer():
         self.root.iconphoto(False, icon)
         self.root.geometry("600x550+100+100") # Width x Height + x + y positions
 
-        self.manager = Manager(self.root)
+        self.model = Model()
+        self.view = View(self.root)
+        self.controller = Controller(self.model, self.view)
+
+        # Bind Controller methods to View
+        self.view.bind_commands(self.controller.play, self.controller.pause, self.controller.stop, self.controller.previous, self.controller.next)
+        self.view.bind_load(self.controller.load_songs)
+        self.view.bind_playlist(self.controller.click, self.controller.double_click)
+        self.view.bind_volume(self.controller.set_volume)
+        self.view.bind_mute(self.controller.mute)
+        self.view.bind_time(self.controller.set_time)
+
+        self.view.bind_mixer_selection(self.controller.set_mixer, self.model.mixer_var)
 
 
 if __name__ == "__main__":
     player = MusicPlayer()
-    player.manager.loop_runtime()
-    player.manager.continue_playback()
+    player.controller.loop_runtime()
+    player.controller.loop_continue_playback()
     player.root.mainloop()
