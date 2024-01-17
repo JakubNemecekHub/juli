@@ -25,91 +25,99 @@ class View():
     def __init__(self, root):
 
         # Create tabs for music player and library management 
-        self.manager_tab_view = ctk.CTkTabview(root,
-                                        width=600,
-                                        height=550
-                                        )
+        self.manager_tab_view = ctk.CTkTabview(root)
         tab_player = self.manager_tab_view.add("Player")
-        tab_library =self.manager_tab_view.add("Library")
+        tab_library = self.manager_tab_view.add("Library")
         self.manager_tab_view.set("Player")
-        self.manager_tab_view.pack()
+        root.grid_columnconfigure(0, weight=1)
+        root.grid_rowconfigure(0, weight=1)
+        self.manager_tab_view.grid(row=0, column=0, sticky="nsew")
 
         ########################################### POPULATE PLAYER TAB ###########################################
 
         # Load icons
         self.icons = ButtonIcons()
         
+        tab_player.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+        tab_player.grid_rowconfigure((0, 1, 2, 3, 5), weight=1)
         # Controls
         # Play
         self.btn_play = ctk.CTkButton(tab_player, image=self.icons.play, text="", border_width=0, width=22)
-        self.btn_play.grid(row=0, column=0, padx=7, pady=2.5)
+        self.btn_play.grid(row=0, column=0, sticky="ew", padx=2, pady=(4, 12))
         # Pause
         self.btn_pause = ctk.CTkButton(tab_player, image=self.icons.pause, text="", border_width=0, width=22)
-        self.btn_pause.grid(row=0, column=1, padx=7, pady=2.5)
+        self.btn_pause.grid(row=0, column=1, sticky="ew", padx=2, pady=(4, 12))
         # Stop
         self.btn_stop = ctk.CTkButton(tab_player, image=self.icons.stop, text="", border_width=0, width=22)
-        self.btn_stop.grid(row=0, column=2, padx=7, pady=2.5)
+        self.btn_stop.grid(row=0, column=2, sticky="ew", padx=2, pady=(4, 12))
         # Previous
         self.btn_previous = ctk.CTkButton(tab_player, image=self.icons.previous, text="", border_width=0, width=22)
-        self.btn_previous.grid(row=0, column=3, padx=7, pady=2.5)
+        self.btn_previous.grid(row=0, column=3, sticky="ew", padx=2, pady=(4, 12))
         # Next
         self.btn_next = ctk.CTkButton(tab_player, image=self.icons.next, text="", border_width=0, width=22)
-        self.btn_next.grid(row=0, column=4, padx=7, pady=2.5)
+        self.btn_next.grid(row=0, column=4, sticky="ew", padx=2, pady=(4, 12))
 
         # Volume
         # Volume Scale
         self.scl_volume = ctk.CTkSlider(tab_player, orientation=ctk.HORIZONTAL, )
         self.scl_volume.set(1)
-        self.scl_volume.grid(row=1, column=0, columnspan=8, pady=12)
+        self.scl_volume.grid(row=1, column=0, columnspan=3, pady=(0,12))
         # Mute
-        self.chbtn_mute = ctk.CTkSwitch(tab_player, text="Mute",)
-        self.chbtn_mute.grid(row=1, column=9, pady=12)
+        self.chbtn_mute = ctk.CTkSwitch(tab_player, text="Mute")
+        self.chbtn_mute.grid(row=1, column=3, columnspan=2, pady=(0,12))
 
         # Time
         self.scl_time = ctk.CTkSlider(tab_player, from_=0, to=100, orientation=ctk.HORIZONTAL, width=360)
-        self.scl_time.grid(row=2, column=1, columnspan=9, pady=12)
+        self.scl_time.grid(row=2, column=0, columnspan=5, sticky="ew")
         self.scl_time.set(0)
 
         # Play Bar
         self._track: ctk.StringVar = ctk.StringVar()
         self._time: ctk.StringVar = ctk.StringVar()
         self._duration: ctk.StringVar = ctk.StringVar()
-        l_track = ctk.CTkLabel(tab_player, textvariable=self._track)
-        l_track.grid(row=3, column=0, padx=10, pady=5)
-        l_time = ctk.CTkLabel(tab_player, textvariable=self._time, width=20)
-        l_time.grid(row=4, column=0, padx=10, pady=5)
-        l_duration = ctk.CTkLabel(tab_player, textvariable=self._duration, width=20)
-        l_duration.grid(row=4, column=1, padx=10, pady=5)
+        l_track = ctk.CTkLabel(tab_player, textvariable=self._track, anchor="w")
+        l_track.grid(row=3, column=0, columnspan=3, sticky="ew")
+        l_time = ctk.CTkLabel(tab_player, textvariable=self._time, anchor="e")
+        l_time.grid(row=3, column=3, sticky="ew")
+        l_duration = ctk.CTkLabel(tab_player, textvariable=self._duration, anchor="e")
+        l_duration.grid(row=3, column=4, sticky="ew")
         
         # Playlist
-        self.playlist = ctkl.CTkListbox(tab_player, height=24)
-        self.playlist.grid(row=5, column=1, columnspan=20)
+        tab_player.grid_rowconfigure(4, weight=20)
+        self.playlist = ctkl.CTkListbox(tab_player)
+        self.playlist.grid(row=4, column=0, columnspan=5, sticky="nsew")
 
         # Status Bar
         self._status: ctk.StringVar = ctk.StringVar()
         self._message: ctk.StringVar = ctk.StringVar()
-        l_status = ctk.CTkLabel(tab_player, textvariable=self._status)
-        l_status.grid(row=6, column=0, padx=5, pady=0)
+        l_status = ctk.CTkLabel(tab_player, textvariable=self._status, anchor="w")
+        l_status.grid(row=5, column=0, columnspan=2, sticky="ew")
         # Message label
-        l_message = ctk.CTkLabel(tab_player, textvariable=self._message)
-        l_message.grid(row=6, column=1, padx=5, pady=0) 
+        l_message = ctk.CTkLabel(tab_player, textvariable=self._message, anchor="w")
+        l_message.grid(row=5, column=2, columnspan=3, sticky="ew") 
 
         ########################################### POPULATE LIBRARY TAB ###########################################
 
-        folder_entry_label: ctk.CTkLabel = ctk.CTkLabel(tab_library, text="Enter path").pack()
+        tab_library.grid_columnconfigure((0, 1, 2), weight=1)
+        tab_library.grid_rowconfigure((0, 1, 2), weight=1)
+        tab_library.grid_rowconfigure(3, weight=10)
+
+        folder_entry_label: ctk.CTkLabel = ctk.CTkLabel(tab_library, text="Enter path")
+        folder_entry_label.grid(row=0, column=0, sticky="ew")
         self.folder_entry: ctk.CTkEntry = ctk.CTkEntry(tab_library, placeholder_text="Path...")
-        self.folder_entry.pack()
+        self.folder_entry.grid(row=0, column=1, columnspan=2, sticky="ew")
         self.btn_load: ctk.CTkButton = ctk.CTkButton(tab_library, text="Load Songs")
-        self.btn_load.pack()
+        self.btn_load.grid(row=1, column=1)
         self.btn_add: ctk.CTkButton = ctk.CTkButton(tab_library, text="Add Songs")
-        self.btn_add.pack()
+        self.btn_add.grid(row=1, column=2)
 
         # Mixer selection -> radiobuttons (for more -> drop down list)
-        lb_mixer: ctk.CTkLabel = ctk.CTkLabel(tab_library, text="Mixer").pack()
+        lb_mixer: ctk.CTkLabel = ctk.CTkLabel(tab_library, text="Mixer")
+        lb_mixer.grid(row=2, column=0)
         self.ra_mixer_pygame: ctk.CTkRadioButton = ctk.CTkRadioButton(tab_library, text="Pygame Mixer", value=1)
         self.ra_mixer_justmixer: ctk.CTkRadioButton = ctk.CTkRadioButton(tab_library, text="JustMixer", value=2)
-        self.ra_mixer_pygame.pack()
-        self.ra_mixer_justmixer.pack()
+        self.ra_mixer_pygame.grid(row=2, column=1)
+        self.ra_mixer_justmixer.grid(row=2, column=2)
 
     ########################################### BIND VARIOUS COMMANDS ###########################################
 

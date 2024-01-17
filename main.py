@@ -17,7 +17,7 @@ class MusicPlayer():
         icon = ImageTk.PhotoImage(file=os.path.join("icons", "icon.png"))
         self.root.wm_iconbitmap()
         self.root.iconphoto(False, icon)
-        self.root.geometry("600x550+100+100") # Width x Height + x + y positions
+        self.root.geometry("400x550+100+100") # Width x Height + x + y positions
 
         self.model = Model()
         self.view = View(self.root)
