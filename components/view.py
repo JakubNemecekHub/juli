@@ -20,6 +20,12 @@ class ButtonIcons():
         self.next = ctk.CTkImage(Image.open(os.path.join(_icon_folder, "next.png")))
 
 
+def create_button(root, icon, row, column) -> ctk.CTkButton:
+    btn = ctk.CTkButton(root, image=icon, text="")
+    btn.grid(row=row, column=column, sticky="ew", padx=2, pady=(4,12))
+    return btn
+
+
 class View():
 
     def __init__(self, root):
@@ -35,27 +41,16 @@ class View():
 
         ########################################### POPULATE PLAYER TAB ###########################################
 
-        # Load icons
         self.icons = ButtonIcons()
-        
         tab_player.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
         tab_player.grid_rowconfigure((0, 1, 2, 3, 5), weight=1)
+        
         # Controls
-        # Play
-        self.btn_play = ctk.CTkButton(tab_player, image=self.icons.play, text="")
-        self.btn_play.grid(row=0, column=0, sticky="ew", padx=2, pady=(4, 12))
-        # Pause
-        self.btn_pause = ctk.CTkButton(tab_player, image=self.icons.pause, text="")
-        self.btn_pause.grid(row=0, column=1, sticky="ew", padx=2, pady=(4, 12))
-        # Stop
-        self.btn_stop = ctk.CTkButton(tab_player, image=self.icons.stop, text="")
-        self.btn_stop.grid(row=0, column=2, sticky="ew", padx=2, pady=(4, 12))
-        # Previous
-        self.btn_previous = ctk.CTkButton(tab_player, image=self.icons.previous, text="")
-        self.btn_previous.grid(row=0, column=3, sticky="ew", padx=2, pady=(4, 12))
-        # Next
-        self.btn_next = ctk.CTkButton(tab_player, image=self.icons.next, text="")
-        self.btn_next.grid(row=0, column=4, sticky="ew", padx=2, pady=(4, 12))
+        self.btn_play = create_button(tab_player, self.icons.play, 0, 0)          # Play
+        self.btn_pause = create_button(tab_player, self.icons.pause, 0, 1)        # Pause
+        self.btn_stop = create_button(tab_player, self.icons.stop, 0, 2)          # Stop
+        self.btn_previous = create_button(tab_player, self.icons.previous, 0, 3)  # Previous
+        self.btn_next = create_button(tab_player, self.icons.next, 0, 4)          # Next
 
         # Volume
         # Volume Scale
