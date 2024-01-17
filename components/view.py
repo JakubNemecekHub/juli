@@ -42,19 +42,19 @@ class View():
         tab_player.grid_rowconfigure((0, 1, 2, 3, 5), weight=1)
         # Controls
         # Play
-        self.btn_play = ctk.CTkButton(tab_player, image=self.icons.play, text="", border_width=0, width=22)
+        self.btn_play = ctk.CTkButton(tab_player, image=self.icons.play, text="")
         self.btn_play.grid(row=0, column=0, sticky="ew", padx=2, pady=(4, 12))
         # Pause
-        self.btn_pause = ctk.CTkButton(tab_player, image=self.icons.pause, text="", border_width=0, width=22)
+        self.btn_pause = ctk.CTkButton(tab_player, image=self.icons.pause, text="")
         self.btn_pause.grid(row=0, column=1, sticky="ew", padx=2, pady=(4, 12))
         # Stop
-        self.btn_stop = ctk.CTkButton(tab_player, image=self.icons.stop, text="", border_width=0, width=22)
+        self.btn_stop = ctk.CTkButton(tab_player, image=self.icons.stop, text="")
         self.btn_stop.grid(row=0, column=2, sticky="ew", padx=2, pady=(4, 12))
         # Previous
-        self.btn_previous = ctk.CTkButton(tab_player, image=self.icons.previous, text="", border_width=0, width=22)
+        self.btn_previous = ctk.CTkButton(tab_player, image=self.icons.previous, text="")
         self.btn_previous.grid(row=0, column=3, sticky="ew", padx=2, pady=(4, 12))
         # Next
-        self.btn_next = ctk.CTkButton(tab_player, image=self.icons.next, text="", border_width=0, width=22)
+        self.btn_next = ctk.CTkButton(tab_player, image=self.icons.next, text="")
         self.btn_next.grid(row=0, column=4, sticky="ew", padx=2, pady=(4, 12))
 
         # Volume
