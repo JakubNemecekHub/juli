@@ -30,7 +30,7 @@ class Model():
 
     def __init__(self):
 
-        # from controls
+        # Controls
         self._mixer: Mixer = JustMixer()
         self.mixer_var = ctk.IntVar(value=2)
         self.formats: list[str] = self.get_supported_formats()
@@ -39,12 +39,11 @@ class Model():
         self._volume: float = 1.0 # float or int?
         self.time_var: ctk.IntVar = ctk.IntVar()
 
-        # from playlist
-        self.INITIAL_DIR = os.environ["INITIAL_DIR"]
-        self.dir: str = os.path.join(self.INITIAL_DIR, os.environ["STARTING_DIR"])
-
+        # Playlist
         self.list: list[Song] = {}
         self.active: int = 0 # -1 could mean no selection
+        self.STARTING_DIR: str = os.path.join(os.environ["INITIAL_DIR"], os.environ["STARTING_DIR"])
+
 
     def set_mixer(self) -> None:
         """Set mixer object"""

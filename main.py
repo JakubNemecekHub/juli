@@ -32,6 +32,7 @@ class MusicPlayer():
         self.view.bind_time(self.controller.set_time)
 
         self.view.bind_mixer_selection(self.controller.set_mixer, self.model.mixer_var)
+        self.controller.load_songs(self.model.STARTING_DIR)
 
 
 if __name__ == "__main__":

@@ -106,7 +106,6 @@ class View():
 
         # Mixer selection -> radiobuttons (for more -> drop down list)
         lb_mixer: ctk.CTkLabel = ctk.CTkLabel(tab_library, text="Mixer").pack()
-        # _mixer_var: ctk.IntVar = ctk.IntVar(value=1)
         self.ra_mixer_pygame: ctk.CTkRadioButton = ctk.CTkRadioButton(tab_library, text="Pygame Mixer", value=1)
         self.ra_mixer_justmixer: ctk.CTkRadioButton = ctk.CTkRadioButton(tab_library, text="JustMixer", value=2)
         self.ra_mixer_pygame.pack()
