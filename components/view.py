@@ -26,6 +26,28 @@ def create_button(root, icon, row, column) -> ctk.CTkButton:
     return btn
 
 
+
+class StatusBar(ctk.CTkFrame):
+
+    def __init__(self, root):
+        super().__init__(root)
+
+        # Logic
+        self.MESSAGE_TIME: int = 3000
+        self.status_var: ctk.StringVar = ctk.StringVar()
+        self.message_var: ctk.StringVar = ctk.StringVar()
+        
+        # GUI
+        self.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        # Status label
+        status = ctk.CTkLabel(self, textvariable=self.status_var, anchor="w")
+        status.grid(row=0, column=0, columnspan=2, sticky="ew")
+        # Message label
+        message = ctk.CTkLabel(self, textvariable=self.message_var, anchor="w")
+        message.grid(row=0, column=2, columnspan=3, sticky="ew") 
+
+
 class View():
 
     def __init__(self, root):
@@ -36,8 +58,12 @@ class View():
         tab_library = self.manager_tab_view.add("Library")
         self.manager_tab_view.set("Player")
         root.grid_columnconfigure(0, weight=1)
-        root.grid_rowconfigure(0, weight=1)
+        root.grid_rowconfigure(0, weight=50)
         self.manager_tab_view.grid(row=0, column=0, sticky="nsew")
+
+        self.status_bar = StatusBar(root)
+        self.status_bar.grid(row=1, column=0, sticky="ew")
+        root.grid_rowconfigure(1, weight=1)
 
         ########################################### POPULATE PLAYER TAB ###########################################
 
@@ -81,15 +107,6 @@ class View():
         tab_player.grid_rowconfigure(4, weight=20)
         self.playlist = ctkl.CTkListbox(tab_player)
         self.playlist.grid(row=4, column=0, columnspan=5, sticky="nsew")
-
-        # Status Bar
-        self._status: ctk.StringVar = ctk.StringVar()
-        self._message: ctk.StringVar = ctk.StringVar()
-        l_status = ctk.CTkLabel(tab_player, textvariable=self._status, anchor="w")
-        l_status.grid(row=5, column=0, columnspan=2, sticky="ew")
-        # Message label
-        l_message = ctk.CTkLabel(tab_player, textvariable=self._message, anchor="w")
-        l_message.grid(row=5, column=2, columnspan=3, sticky="ew") 
 
         ########################################### POPULATE LIBRARY TAB ###########################################
 
@@ -181,15 +198,6 @@ class View():
         self.playlist.deactivate(id)
         pass
 
-    def update_status_bar(self, status: str) -> None:
-        self._status.set(status)
-
-    def set_message(self, message: str) -> None:
-        self._message.set(message)
-        self.tab_player.after(3000, self.reset_message)
-
-    def reset_message(self) -> None:
-        self._message.set("")
 
     def set_time_range(self, duration: int) -> None:
         self.scl_time.configure(to=duration)
@@ -204,3 +212,17 @@ class View():
 
     def get_selection(self) -> None:
         return self.playlist.curselection()
+
+    # Status bar
+    def update_status_bar(self, status: str) -> None:
+        # self._status.set(status)
+        self.status_bar.status_var.set(status)
+
+    def set_message(self, message: str) -> None:
+        # self._message.set(message)
+        self.status_bar.message_var.set(message)
+        self.tab_player.after(3000, self.reset_message)
+
+    def reset_message(self) -> None:
+        # self._message.set("")
+        self.status_bat.message_var.set("")
