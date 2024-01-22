@@ -87,10 +87,8 @@ class Controller():
     ########################################### LOOPS ###########################################
     def loop_runtime(self) -> None:
         state, position = self.model.loop_runtime()
-        if state:
+        if state != PlaybackStatus.STOPPED:
             self.view.set_time(position)
-        else:
-            self.view.reset_time()
         self.view.manager_tab_view.after(100, self.loop_runtime)
 
     def loop_continue_playback(self) -> None:

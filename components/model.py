@@ -179,8 +179,6 @@ class Model():
         return (self._play_state == PlaybackStatus.PLAYING) and not self._mixer.get_busy()
     
     ########################################### LOOPS ###########################################
-    def loop_runtime(self) -> (bool, int):
-        if self._play_state == PlaybackStatus.PLAYING:
-            position: int = self._mixer.get_position()
-            return True, position
-        return False, 0
+    def loop_runtime(self) -> (PlaybackStatus, int):
+        position: int = self._mixer.get_position()
+        return self._play_state, position 
