@@ -12,47 +12,45 @@ class Controller():
     # file handling
     def load_songs(self, path: str) -> None:
         loaded: list[str] = self.model.load_songs(path)
-        self.view.populate_list(loaded)
+        self.view.playlist_frame.populate(loaded)
 
     # Playback
     def play(self) -> None:
         song, id = self.model.get_song() # how to type hint this? (Song | None, int)
         if song:                             
+            self.view.info_frame.update(song)
+            self.view.playlist_frame.update(id)
             status: PlaybackStatus = self.model.play(song)
-            self.view.update_play_bar(song)
-            self.view.update_play_list(id)
-            self.view.update_status_bar(status.value)
-            self.view.set_time_range(self.model.get_duration())
+            self.view.status_frame.status(status)
 
     def pause(self) -> None:
         status: PlaybackStatus = self.model.pause()
         if status:
-            self.view.update_status_bar(status.value)
+            self.view.status_frame.status(status)
 
     def stop(self) -> None:
         song, id = self.model.get_song()
         status: PlaybackStatus = self.model.stop()
         if status:
-            self.view.playlist_deselect(id)
-            self.view.reset_play_bar()
-            self.view.reset_time()
-            self.view.update_status_bar(status.value)
+            self.view.playlist_frame.deselect(id)
+            self.view.info_frame.reset()
+            self.view.status_frame.status(status)
 
     def previous(self) -> None:
         song, id = self.model.get_previous()
         if song:
             status: PlaybackStatus = self.model.play(song)
-            self.view.update_play_bar(song)
-            self.view.update_play_list(id)
-            self.view.update_status_bar(status.value)
+            self.view.info_frame.update(song)
+            self.view.playlist_frame.update(id)
+            self.view.status_frame.status(status)
 
     def next(self) -> None:
         song, id = self.model.get_next()
         if song:
             status: PlaybackStatus = self.model.play(song)
-            self.view.update_play_bar(song)
-            self.view.update_play_list(id)
-            self.view.update_status_bar(status.value)
+            self.view.info_frame.update(song)
+            self.view.playlist_frame.update(id)
+            self.view.status_frame.status(status)
 
     # Volume
     def set_volume(self, volume: float) -> None:
@@ -81,14 +79,14 @@ class Controller():
     def set_time(self, time: str) -> None:
         self.model.set_time(int(time))
 
-    def set_mixer(self) -> None:
-        self.model.set_mixer()
+    def set_mixer(self, mixer: MixerEnum) -> None:
+        self.model.set_mixer(mixer)
 
     ########################################### LOOPS ###########################################
     def loop_runtime(self) -> None:
         state, position = self.model.loop_runtime()
         if state != PlaybackStatus.STOPPED:
-            self.view.set_time(position)
+            self.view.info_frame.time(position)
         self.view.manager_tab_view.after(100, self.loop_runtime)
 
     def loop_continue_playback(self) -> None:

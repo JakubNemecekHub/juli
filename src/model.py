@@ -32,7 +32,7 @@ class Model():
 
         # Controls
         self._mixer: Mixer = JustMixer()
-        self.mixer_var = ctk.IntVar(value=2)
+        # self.mixer_var = ctk.IntVar(value=2)
         self.formats: list[str] = self.get_supported_formats()
         self._play_state: PlaybackStatus = PlaybackStatus.STOPPED
         self._volume_state: ctk.BooleanVar = ctk.BooleanVar()
@@ -45,12 +45,12 @@ class Model():
         self.STARTING_DIR: str = os.path.join(os.environ["INITIAL_DIR"], os.environ["STARTING_DIR"])
 
 
-    def set_mixer(self) -> None:
+    def set_mixer(self, mixer: MixerEnum) -> None:
         """Set mixer object"""
         self.stop()
-        if self.mixer_var.get() == 1:
+        if mixer == MixerEnum.PYGAME:
             self._mixer = PygameMixer()
-        elif self.mixer_var.get() == 2:
+        elif mixer == MixerEnum.JUST_PLAYBACK:
             self._mixer = JustMixer()
 
     def get_supported_formats(self) -> list[str]:

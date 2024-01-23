@@ -10,3 +10,7 @@ class PlaybackStatus(Enum):
 class VolumeState(Enum):
     UNMUTE = "Unmute"
     MUTE = "Mute"
+
+class MixerEnum(Enum):
+    PYGAME = 1
+    JUST_PLAYBACK = 2
