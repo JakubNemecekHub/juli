@@ -99,7 +99,7 @@ class Model():
         self.list.clear()
         self.list = loaded_files.copy()
         self.list.sort(key=lambda obj: obj.id)
-        return [song.id for song in self.list]
+        return [song.tracktitle for song in self.list]
 
     def activate_song(self, id: int) -> None:
         self.active = id
