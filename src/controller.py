@@ -20,7 +20,7 @@ class Controller():
     # Playback
     def play(self) -> None:
         """ Play song. """
-        song, song_id = self.model.get_song() # how to type hint this? (Song | None, int)
+        song, song_id = self.model.get_song()
         if song:
             self.view.info_frame.set(song)
             self.view.playlist_frame.activate(song_id)
@@ -29,7 +29,7 @@ class Controller():
 
     def pause(self) -> None:
         """ Pause playback. """
-        status: PlaybackStatus = self.model.pause()
+        status: PlaybackStatus | None = self.model.pause()
         if status:
             self.view.status_frame.status(status)
 

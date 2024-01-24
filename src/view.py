@@ -8,9 +8,22 @@ from .views.library import FolderFrame, MixerFrame
 
 class View():
     """The View. Using CustomTkInter."""
-    def __init__(self, root):
+    def __init__(self, root: ctk.CTk) -> None:
         self.root = root
         self.controller = None
+
+        self.manager_tab_view: ctk.CTkTabview = None   # Manages various tabs, takes up majority of windows
+        self.tab_player: ctk.CTkFrame = None           # Music player itself, with playback and volume controls and play list
+        self.tab_library: ctk.CTkFrame = None          # Loading songs and selecting mixers
+        self.status_frame: StatusFrame = None          # Frame below the tab managrs, shows status and a message
+
+        self.control_frame: ControlFrame = None
+        self.volume_frame: VolumeFrame = None
+        self.info_frame: InfoFrame = None
+        self.playlist_frame: PlayListFrame = None
+
+        self.folder_frame: FolderFrame = None
+        self.mixer_frame: MixerFrame = None
 
     def init(self, controller) -> None:
         """Create GU.I"""

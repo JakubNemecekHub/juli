@@ -9,7 +9,7 @@ from src.enums import PlaybackStatus
 
 class StatusFrame(ctk.CTkFrame):
     """ Frame showing playback status and one message. """
-    def __init__(self, root):
+    def __init__(self, root: ctk.CTkFrame) -> None:
         super().__init__(root)
         # Logic
         self.MESSAGE_TIME: int = 3000

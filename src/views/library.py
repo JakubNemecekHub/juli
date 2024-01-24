@@ -3,14 +3,24 @@ Contents of the Library tab.
 Allows song loading an mixer selection.
 """
 
+from typing import Protocol
+
 import customtkinter as ctk
 
 from src.enums import MixerEnum
 
 
+class Controller(Protocol):
+    """ Interface for the Controller object. """
+    def load_songs(self, path: str) -> None:
+        ...
+    def set_mixer(self, mixer: MixerEnum) -> None:
+        ...
+
+
 class FolderFrame(ctk.CTkFrame):
     """ Song loading. """
-    def __init__(self, root, ctr):
+    def __init__(self, root: ctk.CTkFrame, ctr: Controller) -> None:
         super().__init__(root)
         self.grid_columnconfigure((0, 1), weight=1)
         self.grid_rowconfigure((0, 1, 2), weight=1)
@@ -27,7 +37,7 @@ class FolderFrame(ctk.CTkFrame):
 
 class MixerFrame(ctk.CTkFrame):
     """ Mixer selection. """
-    def __init__(self, root, ctr):
+    def __init__(self, root: ctk.CTkFrame, ctr: Controller) -> None:
         super().__init__(root)
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure(0, weight=1)

@@ -14,7 +14,7 @@ from .mixer.pygamemixer import PygameMixer
 
 class Song():
     """ Song object. """
-    def __init__(self, song: dict):
+    def __init__(self, song: dict) -> None:
         self.id = song["id"]
         self.artist = song["artist"]
         self.album = song["album"]
@@ -29,8 +29,7 @@ class Song():
 
 class Model():
     """ Takes care of application's state and data. """
-    def __init__(self):
-
+    def __init__(self) -> None:
         # Controls
         self._mixer: Mixer = JustMixer()
         # self.mixer_var = ctk.IntVar(value=2)
@@ -39,9 +38,8 @@ class Model():
         self._volume_state: ctk.BooleanVar = ctk.BooleanVar()
         self._volume: float = 1.0 # float or int?
         self.time_var: ctk.IntVar = ctk.IntVar()
-
         # Playlist
-        self.list: list[Song] = {}
+        self.list: list[Song] = []
         self.active: int = 0 # -1 could mean no selection
         self.STARTING_DIR: str = os.path.join(os.environ["INITIAL_DIR"], os.environ["STARTING_DIR"])
 
@@ -109,7 +107,7 @@ class Model():
         """ Activate song by its id in the list of songs. """
         self.active = song_id
 
-    def get_song(self) -> (Song | None, int):
+    def get_song(self) -> tuple[Song | None, int]:
         """ Return active song. """
         if self.active == -1:
             self.active = 0 # If nothing is selected, start from beginning
@@ -123,14 +121,14 @@ class Model():
         """ Check if active song is first in the song list. """
         return self.active == 0
 
-    def get_next(self) -> Song:
+    def get_next(self) -> tuple[Song | None, int]:
         """ Activate the next song in song list and return it. """
         if self.is_last():
             return None, -1
         self.active += 1
         return self.list[self.active], self.active
 
-    def get_previous(self) -> (Song | None, int):
+    def get_previous(self) -> tuple[Song | None, int]:
         """ Activate the previous song in song list and return it. """
         if self.is_first():
             return None, -1
@@ -193,7 +191,7 @@ class Model():
         return (self._play_state == PlaybackStatus.PLAYING) and not self._mixer.get_busy()
 
     ########################################### LOOPS ###########################################
-    def loop_runtime(self) -> (PlaybackStatus, int):
+    def loop_runtime(self) -> tuple[PlaybackStatus, int]:
         """ Update position. """
         position: int = self._mixer.get_position()
         return self._play_state, position

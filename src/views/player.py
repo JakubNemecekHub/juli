@@ -4,6 +4,7 @@ Contents of the Player tab.
 
 import os
 import time
+from typing import Protocol
 
 import customtkinter as ctk
 import CTkListbox as ctkl
@@ -12,12 +13,36 @@ from PIL import Image
 from src.model import Song
 
 
+class Controller(Protocol):
+    """ Interface for the Controller object. """
+    def play(self) -> None:
+        ...
+    def pause(self) -> None:
+        ...
+    def stop(self) -> None:
+        ...
+    def previous(self) -> None:
+        ...
+    def next(self) -> None:
+        ...
+    def set_time(self) -> None:
+        ...
+    def set_volume(self) -> None:
+        ...
+    def mute(self) -> None:
+        ...
+    def click(self) -> None:
+        ...
+    def double_click(self) -> None:
+        ...
+
+
 class ControlFrame(ctk.CTkFrame):
     """
     Playback controls.
     Just the usuall: play, pause, stop, previous, next.
     """
-    def __init__(self, root, ctr):
+    def __init__(self, root, ctr: Controller) -> None:
         super().__init__(root)
         # GUI
         _icon_folder = os.path.join("icons", "controls")
@@ -46,7 +71,7 @@ class VolumeFrame(ctk.CTkFrame):
     Volume controls.
     Setting volume and muting.
     """
-    def __init__(self, root, ctr):
+    def __init__(self, root, ctr: Controller):
         super().__init__(root)
         self.grid_columnconfigure(0, weight=5)
         self.grid_columnconfigure(1, weight=1)
@@ -65,7 +90,7 @@ class InfoFrame(ctk.CTkFrame):
     Shows info aboout the song that is playing.
     The info is: song title, duration, current time.
     """
-    def __init__(self, root, ctr):
+    def __init__(self, root, ctr: Controller) -> None:
         super().__init__(root)
         self.grid_columnconfigure(0, weight=3)
         self.grid_columnconfigure((1, 2), weight=1)
@@ -114,7 +139,7 @@ class InfoFrame(ctk.CTkFrame):
 
 class PlayListFrame(ctk.CTkFrame):
     """ List of loaded songs. """
-    def __init__(self, root, ctr):
+    def __init__(self, root, ctr: Controller):
         super().__init__(root)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
