@@ -1,3 +1,5 @@
+""" The View object for MVC Architecture. """
+
 import customtkinter as ctk
 
 from .views.main import StatusFrame
@@ -5,14 +7,15 @@ from .views.player import ControlFrame, VolumeFrame, InfoFrame, PlayListFrame
 from .views.library import FolderFrame, MixerFrame
 
 class View():
-
+    """The View. Using CustomTkInter."""
     def __init__(self, root):
         self.root = root
         self.controller = None
 
     def init(self, controller) -> None:
+        """Create GU.I"""
         self.controller = controller
-        # Create tabs for music player and library management 
+        # Create tabs for music player and library management
         self.manager_tab_view = ctk.CTkTabview(self.root)
         self.tab_player = self.manager_tab_view.add("Player")
         self.tab_library = self.manager_tab_view.add("Library")
@@ -47,4 +50,3 @@ class View():
         self.mixer_frame = MixerFrame(self.tab_library, self.controller)
         self.mixer_frame.grid(row=1, column=0, sticky="ew")
 
-  

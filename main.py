@@ -1,3 +1,5 @@
+"""Entry point fo Juli Music Player."""
+
 import os
 
 import customtkinter as ctk
@@ -9,7 +11,7 @@ from src.controller import Controller
 
 
 class MusicPlayer():
-
+    """Main class of my music player."""
     def __init__(self):
         ctk.set_appearance_mode("dark")     # May change to "system" in the future
         self.root = ctk.CTk()               # The Custom TkInter window object

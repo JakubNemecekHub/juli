@@ -1,3 +1,7 @@
+"""
+Contents of the Player tab.
+"""
+
 import os
 import time
 
@@ -5,11 +9,14 @@ import customtkinter as ctk
 import CTkListbox as ctkl
 from PIL import Image
 
-from ..model import Song
+from src.model import Song
 
 
 class ControlFrame(ctk.CTkFrame):
-
+    """
+    Playback controls.
+    Just the usuall: play, pause, stop, previous, next.
+    """
     def __init__(self, root, ctr):
         super().__init__(root)
         # GUI
@@ -24,7 +31,7 @@ class ControlFrame(ctk.CTkFrame):
             btn = ctk.CTkButton(root, image=icon, text="", command=command)
             btn.grid(row=row, column=column, sticky="ew", padx=2, pady=(4,12))
             return btn
-        
+
         self.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.btn_play = create_button(self, self.play, 0, 0, ctr.play)              # Play
@@ -35,7 +42,10 @@ class ControlFrame(ctk.CTkFrame):
 
 
 class VolumeFrame(ctk.CTkFrame):
-
+    """
+    Volume controls.
+    Setting volume and muting.
+    """
     def __init__(self, root, ctr):
         super().__init__(root)
         self.grid_columnconfigure(0, weight=5)
@@ -51,7 +61,10 @@ class VolumeFrame(ctk.CTkFrame):
 
 
 class InfoFrame(ctk.CTkFrame):
-
+    """
+    Shows info aboout the song that is playing.
+    The info is: song title, duration, current time.
+    """
     def __init__(self, root, ctr):
         super().__init__(root)
         self.grid_columnconfigure(0, weight=3)
@@ -77,19 +90,22 @@ class InfoFrame(ctk.CTkFrame):
         _format = "%M:%S"  # Show hours only when necessary
         if ms >= 3600000:
             _format = "%H:%M:%S"
-        return time.strftime(_format, time.gmtime(ms // 1000))     
+        return time.strftime(_format, time.gmtime(ms // 1000))
 
-    def update(self, song: Song) -> None:
+    def set(self, song: Song) -> None:
+        """ Set info bar with song's information. """
         self.track_var.set(song.tracktitle)
         if song.duration:
             self.duration_var.set(self.time_str(song.duration))
             self.scl_time.configure(to=song.duration)
 
-    def time(self, time: int) -> None:
-        self.time_var.set(self.time_str(time))
-        self.scl_time.set(time)
+    def time(self, playback_time: int) -> None:
+        """ Show current playback time. """
+        self.time_var.set(self.time_str(playback_time))
+        self.scl_time.set(playback_time)
 
     def reset(self) -> None:
+        """ Reset the info bar (e.g. show nothing). """
         self.track_var.set("")
         self.duration_var.set("")
         self.time_var.set("")
@@ -97,7 +113,7 @@ class InfoFrame(ctk.CTkFrame):
 
 
 class PlayListFrame(ctk.CTkFrame):
-        
+    """ List of loaded songs. """
     def __init__(self, root, ctr):
         super().__init__(root)
         self.grid_columnconfigure(0, weight=1)
@@ -107,15 +123,19 @@ class PlayListFrame(ctk.CTkFrame):
         self.playlist.grid(row=0, column=0, sticky="nsew")
 
     def populate(self, songs: list[str]) -> None:
+        """ Show songs in list of songs. """
         self.playlist.delete("all")
         for song in songs:
             self.playlist.insert(ctk.END, song)
 
-    def update(self, id: int) -> None:
-        self.playlist.activate(id)
+    def activate(self, song_id: int) -> None:
+        """ Activate (e.g. highlight) song by its id from song list. """
+        self.playlist.activate(song_id)
 
-    def deselect(self, id: int) -> None:
-        self.playlist.deactivate(id)
+    def deselect(self, song_id: int) -> None:
+        """ Activate (e.g. highlight) song by its id from song list. """
+        self.playlist.deactivate(song_id)
 
     def get(self) -> (tuple | int | None):
+        """ Get position of song active in the play list. """
         return self.playlist.curselection()

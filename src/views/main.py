@@ -1,9 +1,14 @@
+"""
+Main GUI frame.
+Holds tabs for player and library, and status frame at the bottom.
+"""
+
 import customtkinter as ctk
 
-from ..enums import PlaybackStatus
+from src.enums import PlaybackStatus
 
 class StatusFrame(ctk.CTkFrame):
-
+    """ Frame showing playback status and one message. """
     def __init__(self, root):
         super().__init__(root)
         # Logic
@@ -22,11 +27,14 @@ class StatusFrame(ctk.CTkFrame):
         message.grid(row=0, column=1, sticky="ew")
 
     def status(self, status: PlaybackStatus) -> None:
+        """ Set status message. """
         self.status_var.set(status.value)
 
     def message(self, message: str) -> None:
+        """ Set message. Will appear only for fixed a time. """
         self.message_var.set(message)
         self.after(3000, self.reset_message)
 
     def reset_message(self) -> None:
+        """ Hide message. """
         self.message_var.set("")
